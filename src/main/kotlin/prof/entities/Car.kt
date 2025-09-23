@@ -1,7 +1,7 @@
 package prof.entities
 
 import kotlinx.datetime.LocalDateTime
-import prof.enums.PowerSourceType
+import prof.enums.PowerSourceTypeEnum
 
 class Car(
     id: Long,
@@ -10,7 +10,7 @@ class Car(
     var price: Float,
     var pickupLocation: String,
     var category: String,
-    var powerSourceType: PowerSourceType,
+    var powerSourceType: PowerSourceTypeEnum,
     var imageFileNames: MutableList<String> = mutableListOf(),
     createdAt: LocalDateTime,
     modifiedAt: LocalDateTime,

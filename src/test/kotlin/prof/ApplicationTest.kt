@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 import prof.entities.Car
 import prof.entities.LoginRequest
 import prof.entities.Reservation
-import prof.enums.PowerSourceType
+import prof.enums.PowerSourceTypeEnum
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -26,7 +26,7 @@ class ApplicationTest {
             price = 20000f,
             pickupLocation = "Amsterdam",
             category = "Sedan",
-            powerSourceType = PowerSourceType.ICE,
+            powerSourceType = PowerSourceTypeEnum.ICE,
             imageFileNames = mutableListOf("test1.jpg", "test2.jpg"),
             LocalDateTime(2021, 3, 27, 2, 16, 20),
             LocalDateTime(2021, 3, 27, 2, 16, 20)

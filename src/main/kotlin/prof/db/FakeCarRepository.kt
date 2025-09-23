@@ -8,7 +8,7 @@ import kotlinx.datetime.toLocalDateTime
 import prof.Requests.CreateCarRequest
 import prof.Requests.UpdateCarRequest
 import prof.entities.Car
-import prof.enums.PowerSourceType
+import prof.enums.PowerSourceTypeEnum
 
 object FakeCarRepository : CarRepository {
     private var currentId: Long = 0L
@@ -24,7 +24,7 @@ object FakeCarRepository : CarRepository {
                     price = 20.0f,
                     pickupLocation = "City Center",
                     category = "Sedan",
-                    powerSourceType = PowerSourceType.ICE,
+                    powerSourceType = PowerSourceTypeEnum.ICE,
                     imageFileNames = mutableListOf(),
                     createdAt =  LocalDateTime(2024, 3, 27, 2, 16, 20),
                     modifiedAt =  LocalDateTime(2024, 3, 27, 2, 16, 20)                )
@@ -36,7 +36,7 @@ object FakeCarRepository : CarRepository {
                     price = 35.0f,
                     pickupLocation = "Airport",
                     category = "Sedan",
-                    powerSourceType = PowerSourceType.BEV,
+                    powerSourceType = PowerSourceTypeEnum.BEV,
                     imageFileNames = mutableListOf(),
                     createdAt =  LocalDateTime(2024, 3, 27, 2, 16, 20),
                     modifiedAt =  LocalDateTime(2024, 3, 27, 2, 16, 20)
@@ -49,7 +49,7 @@ object FakeCarRepository : CarRepository {
                     price = 30.0f,
                     pickupLocation = "Downtown",
                     category = "Sedan",
-                    powerSourceType = PowerSourceType.HEV,
+                    powerSourceType = PowerSourceTypeEnum.HEV,
                     createdAt =  LocalDateTime(2024, 3, 27, 2, 16, 20),
                     modifiedAt =  LocalDateTime(2024, 3, 27, 2, 16, 20)
                 )
@@ -61,7 +61,7 @@ object FakeCarRepository : CarRepository {
                     price = 50.0f,
                     pickupLocation = "Station",
                     category = "SUV",
-                    powerSourceType = PowerSourceType.FCEV,
+                    powerSourceType = PowerSourceTypeEnum.FCEV,
                     imageFileNames = mutableListOf(),
                     createdAt =  LocalDateTime(2024, 3, 27, 2, 16, 20),
                     modifiedAt =  LocalDateTime(2024, 3, 27, 2, 16, 20)

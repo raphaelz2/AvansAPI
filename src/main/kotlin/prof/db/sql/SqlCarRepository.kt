@@ -4,12 +4,11 @@ import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.statements.InsertStatement
 import prof.Requests.CreateCarRequest
 import prof.Requests.UpdateCarRequest
 import prof.db.CarRepository
 import prof.entities.Car
-import prof.enums.PowerSourceType
+import prof.enums.PowerSourceTypeEnum
 
 class SqlCarRepository : CarRepository {
     private fun rowToCar(row: ResultRow): Car {
@@ -28,7 +27,7 @@ class SqlCarRepository : CarRepository {
             price = row[Cars.price],
             pickupLocation = row[Cars.pickupLocation],
             category = row[Cars.category],
-            powerSourceType = PowerSourceType.valueOf(row[Cars.powerSourceType]),
+            powerSourceType = PowerSourceTypeEnum.valueOf(row[Cars.powerSourceType]),
             imageFileNames = images,
             createdAt = LocalDateTime.parse(row[Cars.createdAt]),
             modifiedAt = LocalDateTime.parse(row[Cars.modifiedAt])
