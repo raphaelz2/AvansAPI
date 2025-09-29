@@ -48,4 +48,10 @@ dependencies {
 
     // bcrypt bibliotheek voor veilig wachtwoord hashen
     implementation("org.mindrot:jbcrypt:0.4")
+
+    // Generates the OpenAPI spec from your routes:
+    implementation("io.github.smiley4:ktor-openapi:5.3.0")
+
+    // Serves Swagger UI for that spec:
+    implementation("io.github.smiley4:ktor-swagger-ui:5.3.0")
 }
