@@ -2,6 +2,7 @@ package prof
 
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
+import prof.plugins.configureDocs
 import prof.plugins.configureHTTP
 import prof.plugins.configureRouting
 import prof.plugins.configureSecurity
@@ -15,5 +16,6 @@ fun Application.module() {
     configureSerialization()
     configureHTTP()
     configureSecurity()
+    configureDocs()
     configureRouting()
 }
