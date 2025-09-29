@@ -45,4 +45,7 @@ dependencies {
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+
+    // bcrypt bibliotheek voor veilig wachtwoord hashen
+    implementation("org.mindrot:jbcrypt:0.4")
 }

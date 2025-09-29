@@ -62,27 +62,30 @@ object FakeUserRepository : UserRepository {
 
 // Create a new user
     override suspend fun create(entity: CreateUserRequest): User {
+        val hashed = prof.security.Passwords.hash(entity.password)
         currentId++ // Increment the ID for the new user
         val now = Clock.System.now().toLocalDateTime(TimeZone.of("Europe/Amsterdam")) // Get current time in Amsterdam
 
-        // Create a new User instance, assigning values from the request entity to each property
+        // Create a new prof.security.User instance, assigning values from the request entity to each property
         val newUser = User(
             id = currentId,
             firstName = entity.firstName,
             lastName = entity.lastName,
-            password = entity.password,
+            password = hashed,
             email = entity.email,
             createdAt = now,
             modifiedAt = now
         )
-
+    // ZORG DAT DIT HIER STAAT, IN DE FUNCTIE
+    println("Gehashed wachtwoord opgeslagen: ${newUser.password}")
         users.add(newUser) // Add the new user to the list
         return newUser // Return the newly created user
     }
 
+
     // Update an existing user
     override suspend fun update(entity: UpdateUserRequest) {
-        val user = users.find { it.id == entity.id } ?: throw IllegalArgumentException("User with ID ${entity.id} does not exist")
+        val user = users.find { it.id == entity.id } ?: throw IllegalArgumentException("prof.security.User with ID ${entity.id} does not exist")
 
         // Update the properties of the found user to match those in the update request
         user.apply {
