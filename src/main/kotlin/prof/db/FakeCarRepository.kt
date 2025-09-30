@@ -7,14 +7,19 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import prof.Requests.CreateCarRequest
 import prof.Requests.UpdateCarRequest
+import prof.db.FakeCarRepository.entityAttributeRepo
 import prof.entities.Car
+import prof.entities.EntityAttribute
+import prof.enums.CarAttributeEnum
+import prof.enums.EntityEnum
 import prof.enums.PowerSourceTypeEnum
 
 object FakeCarRepository : CarRepository {
+
     private var currentId: Long = 0L
     private val cars = mutableListOf<Car>()
+    private val entityAttributeRepo = FakeEntityAttributeRepository
 
-    // Seed the fake CarRepository with some dummy data
     init {
         runBlocking {
             create(
@@ -26,8 +31,9 @@ object FakeCarRepository : CarRepository {
                     category = "Sedan",
                     powerSourceType = PowerSourceTypeEnum.ICE,
                     imageFileNames = mutableListOf(),
-                    createdAt =  LocalDateTime(2024, 3, 27, 2, 16, 20),
-                    modifiedAt =  LocalDateTime(2024, 3, 27, 2, 16, 20)                )
+                    createdAt = LocalDateTime(2024, 3, 27, 2, 16, 20),
+                    modifiedAt = LocalDateTime(2024, 3, 27, 2, 16, 20)
+                )
             )
             create(
                 CreateCarRequest(
@@ -38,90 +44,90 @@ object FakeCarRepository : CarRepository {
                     category = "Sedan",
                     powerSourceType = PowerSourceTypeEnum.BEV,
                     imageFileNames = mutableListOf(),
-                    createdAt =  LocalDateTime(2024, 3, 27, 2, 16, 20),
-                    modifiedAt =  LocalDateTime(2024, 3, 27, 2, 16, 20)
-                )
-            )
-            create(
-                CreateCarRequest(
-                    make = "Honda",
-                    model = "Clarity",
-                    price = 30.0f,
-                    pickupLocation = "Downtown",
-                    category = "Sedan",
-                    powerSourceType = PowerSourceTypeEnum.HEV,
-                    createdAt =  LocalDateTime(2024, 3, 27, 2, 16, 20),
-                    modifiedAt =  LocalDateTime(2024, 3, 27, 2, 16, 20)
-                )
-            )
-            create(
-                CreateCarRequest(
-                    make = "Hyundai",
-                    model = "Nexo",
-                    price = 50.0f,
-                    pickupLocation = "Station",
-                    category = "SUV",
-                    powerSourceType = PowerSourceTypeEnum.FCEV,
-                    imageFileNames = mutableListOf(),
-                    createdAt =  LocalDateTime(2024, 3, 27, 2, 16, 20),
-                    modifiedAt =  LocalDateTime(2024, 3, 27, 2, 16, 20)
+                    createdAt = LocalDateTime(2024, 3, 27, 2, 16, 20),
+                    modifiedAt = LocalDateTime(2024, 3, 27, 2, 16, 20)
                 )
             )
         }
     }
 
-    // Find a car by its ID
-    override suspend fun findById(id: Long): Car? = cars.find { it.id == id }
+    override suspend fun findById(id: Long): Car? {
+        val car = cars.find { it.id == id } ?: return null
+        car.attributes = entityAttributeRepo.findByEntityBlocking(EntityEnum.CAR.name, car.id).toMutableList()
+        return car
+    }
 
-    // Find all cars
-    override suspend fun findAll(): List<Car> = cars.toList()
+    override suspend fun findAll(): List<Car> =
+        cars.map { car ->
+            car.apply {
+                attributes = entityAttributeRepo.findByEntityBlocking(EntityEnum.CAR.name, car.id).toMutableList()
+            }
+        }
 
-    // Create a new car
     override suspend fun create(entity: CreateCarRequest): Car {
-        currentId++ // Increment the ID for the new car
-        val now = Clock.System.now().toLocalDateTime(TimeZone.of("Europe/Amsterdam")) // Get current time in Amsterdam
-        val newCar = Car(
+        currentId++
+        val now = Clock.System.now().toLocalDateTime(TimeZone.of("Europe/Amsterdam"))
+        val car = Car(
             id = currentId,
-            make = entity.make,
-            model = entity.model,
-            price = entity.price,
-            pickupLocation = entity.pickupLocation,
-            category = entity.category,
-            powerSourceType = entity.powerSourceType,
-            imageFileNames = entity.imageFileNames.toMutableList(), // Copy the list if necessary
+            imageFileNames = entity.imageFileNames.toMutableList(),
             createdAt = now,
             modifiedAt = now
         )
-        cars.add(newCar) // Add the new car to the list
-        return newCar // Return the newly created car
+        cars.add(car)
+
+        val attrs = listOf(
+            EntityAttribute(0, EntityEnum.CAR, car.id, CarAttributeEnum.MAKE.name, entity.make, now, now),
+            EntityAttribute(0, EntityEnum.CAR, car.id, CarAttributeEnum.MODEL.name, entity.model, now, now),
+            EntityAttribute(0, EntityEnum.CAR, car.id, CarAttributeEnum.PRICE.name, entity.price.toString(), now, now),
+            EntityAttribute(0, EntityEnum.CAR, car.id, CarAttributeEnum.PICKUP_LOCATION.name, entity.pickupLocation, now, now),
+            EntityAttribute(0, EntityEnum.CAR, car.id, CarAttributeEnum.CATEGORY.name, entity.category, now, now),
+            EntityAttribute(0, EntityEnum.CAR, car.id, CarAttributeEnum.POWER_SOURCE_TYPE.name, entity.powerSourceType.name, now, now)
+        )
+        attrs.forEach { entityAttributeRepo.createBlocking(it) }
+
+        car.attributes = entityAttributeRepo.findByEntityBlocking(EntityEnum.CAR.name, car.id).toMutableList()
+        return car
     }
 
-    // Update an existing car
     override suspend fun update(entity: UpdateCarRequest) {
-        val car = cars.find { it.id == entity.id } ?: throw IllegalArgumentException("Car with ID ${entity.id} does not exist")
+        val car = cars.find { it.id == entity.id } ?: return
+        car.imageFileNames = entity.imageFileNames.toMutableList()
+        car.modifiedAt = entity.modifiedAt
 
-        // Update the properties of the found car to match those in the update request
-        car.apply {
-            make = entity.make
-            model = entity.model
-            price = entity.price
-            pickupLocation = entity.pickupLocation
-            category = entity.category
-            powerSourceType = entity.powerSourceType
-            imageFileNames = entity.imageFileNames.toMutableList() // Make a copy of the list if necessary
-            createdAt = entity.createdAt
-            modifiedAt = entity.modifiedAt
+        val attrs = listOf(
+            EntityAttribute(0, EntityEnum.CAR, car.id, CarAttributeEnum.MAKE.name, entity.make, car.createdAt, car.modifiedAt),
+            EntityAttribute(0, EntityEnum.CAR, car.id, CarAttributeEnum.MODEL.name, entity.model, car.createdAt, car.modifiedAt),
+            EntityAttribute(0, EntityEnum.CAR, car.id, CarAttributeEnum.PRICE.name, entity.price.toString(), car.createdAt, car.modifiedAt),
+            EntityAttribute(0, EntityEnum.CAR, car.id, CarAttributeEnum.PICKUP_LOCATION.name, entity.pickupLocation, car.createdAt, car.modifiedAt),
+            EntityAttribute(0, EntityEnum.CAR, car.id, CarAttributeEnum.CATEGORY.name, entity.category, car.createdAt, car.modifiedAt),
+            EntityAttribute(0, EntityEnum.CAR, car.id, CarAttributeEnum.POWER_SOURCE_TYPE.name, entity.powerSourceType.name, car.createdAt, car.modifiedAt)
+        )
+
+        attrs.forEach { attr ->
+            val existing = entityAttributeRepo.findByEntityBlocking(EntityEnum.CAR.name, car.id)
+                .find { it.attribute == attr.attribute }
+
+            if (existing != null) {
+                attr.id = existing.id
+                entityAttributeRepo.updateBlocking(attr)
+            } else {
+                entityAttributeRepo.createBlocking(attr)
+            }
         }
+
+        car.attributes = entityAttributeRepo.findByEntityBlocking(EntityEnum.CAR.name, car.id).toMutableList()
     }
 
     override suspend fun addImageFileName(carId: Long, imageFileName: String) {
-        val car = cars.find { it.id == carId }
-            ?: throw IllegalArgumentException("Car with ID $carId not found")
-
-        // Add the image file name to the car
+        val car = cars.find { it.id == carId } ?: return
         car.imageFileNames.add(imageFileName)
     }
 
-    // Delete a car by its ID
-    override suspend fun delete(id: Long): Boolean = cars.removeIf { it.id == id }
+    override suspend fun delete(id: Long): Boolean {
+        val car = cars.find { it.id == id } ?: return false
+        val attrs = entityAttributeRepo.findByEntityBlocking(EntityEnum.CAR.name, car.id)
+        attrs.forEach { entityAttributeRepo.deleteBlocking(it.id) }
+        cars.remove(car)
+        return true
+    }
 }
