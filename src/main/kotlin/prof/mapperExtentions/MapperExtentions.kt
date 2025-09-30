@@ -29,7 +29,7 @@ fun List<Car>.toGetCarsResponse(): GetCarsResponse =
     GetCarsResponse(GetCarResponseList = map { it.toGetCarResponse() }.toMutableList())
 
 
-/* ---------- User mappings ---------- */
+/* ---------- prof.security.User mappings ---------- */
 
 fun User.toGetUserResponse(): GetUserResponse = GetUserResponse(
     id = id,
@@ -40,11 +40,11 @@ fun User.toGetUserResponse(): GetUserResponse = GetUserResponse(
     modifiedAt = modifiedAt
 )
 
-/** List<User> -> List<GetUserResponse> */
+/** List<prof.security.User> -> List<GetUserResponse> */
 fun List<User>.toGetUserResponseList(): List<GetUserResponse> =
     map { it.toGetUserResponse() }
 
-/** List<User> -> GetUsersResponse (for userRoutes.kt) */
+/** List<prof.security.User> -> GetUsersResponse (for userRoutes.kt) */
 fun List<User>.toGetUsersResponse(): GetUsersResponse =
     GetUsersResponse(GetUsersResponseList = map { it.toGetUserResponse() }.toMutableList())
 

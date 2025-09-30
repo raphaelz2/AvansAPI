@@ -4,7 +4,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
 @Serializable
-class CreateUserRequest(
+data class CreateUserRequest(
     val firstName: String,
     val lastName: String,
     val password: String,

@@ -34,10 +34,11 @@ class SqlUserRepository : UserRepository {
     }
 
     override suspend fun create(entity: CreateUserRequest): User = transaction {
+        val hashed = prof.security.Passwords.hash(entity.password)
         val newId: Long = Users.insert { st ->
             st[firstName] = entity.firstName
             st[lastName] = entity.lastName
-            st[password] = entity.password
+            st[password] = hashed
             st[email] = entity.email
             st[createdAt] = entity.createdAt.toString()
             st[modifiedAt] = entity.modifiedAt.toString()

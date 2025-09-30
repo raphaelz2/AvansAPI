@@ -44,6 +44,17 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
     implementation("io.ktor:ktor-server-default-headers-jvm")
 
+    testImplementation("io.ktor:ktor-server-tests-jvm")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+
+    // bcrypt bibliotheek voor veilig wachtwoord hashen
+    implementation("org.mindrot:jbcrypt:0.4")
+
+    // Generates the OpenAPI spec from your routes:
+    implementation("io.github.smiley4:ktor-openapi:5.3.0")
+
+    // Serves Swagger UI for that spec:
+    implementation("io.github.smiley4:ktor-swagger-ui:5.3.0")
     testImplementation("io.ktor:ktor-server-test-host-jvm:${ktor_version}")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:${kotlin_version}")
 }
