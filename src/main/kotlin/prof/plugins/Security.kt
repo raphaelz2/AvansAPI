@@ -46,7 +46,12 @@ fun Application.configureSecurity() {
         post("/login") {
             val request = call.receive<LoginRequest>()
             val user = userRepo.findByEmail(request.email)
-            if (user == null || user.password != request.password) {
+//            if (user == null || user.password != request.password) {
+//                call.respond(HttpStatusCode.Unauthorized, "Invalid credentials")
+//                return@post
+//            }
+            val ok = user != null && prof.security.Passwords.verify(request.password,user.password)
+            if(!ok){
                 call.respond(HttpStatusCode.Unauthorized, "Invalid credentials")
                 return@post
             }
