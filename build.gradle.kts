@@ -10,6 +10,7 @@ plugins {
 
 group = "prof"
 version = "0.0.2"
+val ktor_version = "3.0.0-rc-2"
 
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
@@ -43,6 +44,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
     implementation("io.ktor:ktor-server-default-headers-jvm")
 
-    testImplementation("io.ktor:ktor-server-tests-jvm")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+    testImplementation("io.ktor:ktor-server-test-host-jvm:${ktor_version}")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:${kotlin_version}")
 }

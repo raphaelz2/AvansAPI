@@ -38,7 +38,7 @@ object DatabaseFactory {
         Database.connect(dataSource)
 
         transaction {
-            SchemaUtils.create(Users, Cars, Reservations, CarImages)
+            SchemaUtils.create(Users, Cars, Reservations, CarImages, Terms)
         }
     }
 }

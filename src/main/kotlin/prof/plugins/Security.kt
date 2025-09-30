@@ -9,6 +9,7 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import prof.AuthenticatedUser
 import prof.db.FakeUserRepository
 import prof.db.sql.SqlUserRepository
 import prof.entities.LoginRequest
@@ -34,6 +35,10 @@ fun Application.configureSecurity() {
                     .build()
             )
             validate { credential ->
+                val email = credential.payload.getClaim("email").asString()
+                val id = credential.payload.getClaim("id").asLong()
+                if (email != null && id != null) AuthenticatedUser(id, email)
+
                 if (credential.payload.audience.contains(jwtAudience)) JWTPrincipal(credential.payload) else null
             }
             challenge { _, _ ->
