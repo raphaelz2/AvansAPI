@@ -42,3 +42,7 @@ out/
 
 ### KOTLIN ###
 .kotlin
+
+### DB
+data/
+!data/.gitkeep
