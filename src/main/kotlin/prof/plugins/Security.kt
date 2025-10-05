@@ -37,9 +37,11 @@ fun Application.configureSecurity() {
             validate { credential ->
                 val email = credential.payload.getClaim("email").asString()
                 val id = credential.payload.getClaim("id").asLong()
-                if (email != null && id != null) AuthenticatedUser(id, email)
-
-                if (credential.payload.audience.contains(jwtAudience)) JWTPrincipal(credential.payload) else null
+                if (email != null && id != null && credential.payload.audience.contains(jwtAudience)) {
+                    AuthenticatedUser(id, email)
+                } else {
+                    null
+                }
             }
             challenge { _, _ ->
                 call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
@@ -65,6 +67,7 @@ fun Application.configureSecurity() {
                 .withAudience(jwtAudience)
                 .withIssuer(jwtDomain)
                 .withClaim("email", user.email)
+                .withClaim("id", user.id)
                 .withExpiresAt(Date(System.currentTimeMillis() + 600_000))
                 .sign(Algorithm.HMAC256(secret))
 

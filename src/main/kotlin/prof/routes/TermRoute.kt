@@ -1,6 +1,5 @@
 package prof.routes
 
-import com.sun.security.auth.UserPrincipal
 import io.ktor.http.*
 import io.ktor.server.auth.principal
 import io.ktor.server.request.*
@@ -16,51 +15,49 @@ import prof.mapperExtentions.toGetTermResponseList
 fun Route.TermRoute(TermRepository: TermRepositoryInterface) {
     route("/terms") {
         get {
-            val terms = TermRepository.findAll()
+            val user = call.principal<AuthenticatedUser>()!!
+            val terms = TermRepository.findAll(user.id)
+
             call.respond(HttpStatusCode.OK, terms.toGetTermResponseList())
         }
 
         get("/{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
                 ?: return@get call.respond(HttpStatusCode.BadRequest)
+            val user = call.principal<AuthenticatedUser>()!!
 
-            val term = TermRepository.findById(id)
+            val term = TermRepository.findById(id, user.id)
                 ?: return@get call.respond(HttpStatusCode.NotFound)
 
             call.respond(HttpStatusCode.OK, term.toGetTermResponse())
         }
 
         post {
-            val term = try {
-                call.receive<CreateTermRequest>()
-            } catch (e: Exception) {
-                return@post call.respond(
-                    HttpStatusCode.BadRequest,
-                    mapOf("error" to "Invalid JSON")
-                )
-            }
-
+            val term = call.receive<CreateTermRequest>()
             val user = call.principal<AuthenticatedUser>()
 
-            println("Current user ID: $user")
-//
-//            val createdUser = TermRepository.create(term)
-//            call.respond(HttpStatusCode.Created, createdUser.toGetUserResponse())
+            if (user != null) {
+                val createdTerm = TermRepository.create(term, user.id)
+                call.respond(HttpStatusCode.Created, createdTerm.toGetTermResponse())
+            } else {
+                call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
+            }
         }
 
-        put("/{id}") {
-            val id = call.parameters["id"]?.toLongOrNull()
-                ?: return@put call.respond(HttpStatusCode.BadRequest)
+        put {
             val term = call.receive<UpdateTermRequest>()
-            TermRepository.update(term)
+            val user = call.principal<AuthenticatedUser>()!!
+
+            TermRepository.update(term, user.id)
             call.respond(HttpStatusCode.Accepted)
         }
 
         delete("/{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
                 ?: return@delete call.respond(HttpStatusCode.BadRequest)
+            val user = call.principal<AuthenticatedUser>()!!
 
-            val deleted = TermRepository.delete(id)
+            val deleted = TermRepository.delete(id, user.id)
             if (deleted) {
                 call.respond(HttpStatusCode.NoContent)
             } else {

@@ -10,7 +10,6 @@ fun TermDTO.toGetTermResponse(): GetTermResponse = GetTermResponse(
     content = content,
     version = version,
     active = active,
-    userId = userId,
     createdAt = createdAt,
     modifiedAt = modifiedAt
 )

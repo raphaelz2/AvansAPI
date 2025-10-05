@@ -10,7 +10,6 @@ data class GetTermResponse(
     val content: String? = null,
     val version: Int? = null,
     val active: Boolean? = null,
-    val userId: Long? = null,
     val createdAt: LocalDateTime? = null,
     val modifiedAt: LocalDateTime? = null,
 )

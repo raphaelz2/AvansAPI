@@ -39,6 +39,9 @@ object DatabaseFactory {
 
         transaction {
             SchemaUtils.create(Users, Cars, Reservations, CarImages, Terms)
+
+            //seeders
+            prof.db.sql.seeders.MainSeeder().run()
         }
     }
 }
