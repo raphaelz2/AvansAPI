@@ -15,6 +15,34 @@ A Kotlin REST API with the Ktor & Exposed frameworks.
 
 ## Introduction
 
-Our project is a modern and user-friendly mobile application built using the Ktor framework with the Exposed DAO API for seamless data persistence. Designed to serve the needs of people seeking quick and hassle-free car rental services, as well as those who wish to make their vehicles available for rent, this Android app employs the power of Jetpack Compose for an elegant and intuitive user interface.
+Our project is a sleek and user-friendly mobile application, developed with the Ktor framework and leveraging the Exposed DAO API for smooth and reliable data management. Tailored for users who want quick, hassle-free car rentals or wish to list their own vehicles, this Android app combines functionality with style, featuring a clean and intuitive interface built using Jetpack Compose.
 
+## Getting Started
+
+Follow these steps to set up and run the AvansAPI project locally:
+
+1. Clone the Repository
+
+- Access the GitHub repository: AvansAPI
+
+- Clone it or download the ZIP and extract it to a convenient location on your machine.
+
+2. Open the Project
+
+- Launch IntelliJ IDEA.
+
+- Open the extracted folder (AvansAPI) as a new project.
+
+3. Configure and Run 
+
+- Ensure your development environment is set up and all project dependencies are resolved.
+
+- Run the application by executing the main() function in Application.kt.
+  Or Run it using Gradle after making a new Gradle run configuration.
+
+4. Explore Predefined HTTP Requests
+
+- Once the app is running, you can interact with predefined HTTP requests for entities such as Rental, User, and Vehicle.
+
+- Requests are organized in subdirectories according to entity type.
 
