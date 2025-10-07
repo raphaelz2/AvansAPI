@@ -28,8 +28,6 @@ enum class CarAttributeEnum {
     MILEAGE,                     // Niet aanwezig
     VIN_NUMBER,                  // Niet aanwezig
     TRADE_NAME,                  // Handelsbenaming
-
-    // Nieuwe velden toegevoegd voor NL basisinfo:
     BPM,                         // Bruto BPM
     CURB_WEIGHT,                 // Massa ledig voertuig
     MAX_WEIGHT,                  // Toegestane max massa
