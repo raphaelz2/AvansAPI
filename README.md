@@ -130,6 +130,10 @@ For all secured endpoints below, add Authorization: Bearer <your-token> (setting
 ``` 200 Response (text or JSON depending on your implementation):
 Hello, Admin! Token expires in 598000 ms.
 ```
+ ## Auth
+  •	POST /login — returns { "token": "<jwt>" }
+  •	GET /me — verifies token and returns a greeting
+
  ## Cars
   •	GET /cars — list cars
   •	GET /cars/{id} — get by id
