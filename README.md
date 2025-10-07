@@ -131,27 +131,34 @@ For all secured endpoints below, add Authorization: Bearer <your-token> (setting
 Hello, Admin! Token expires in 598000 ms.
 ```
  ## Auth
+ ```
   •	POST /login — returns { "token": "<jwt>" }
   •	GET /me — verifies token and returns a greeting
-
+```
  ## Cars
+ ```
   •	GET /cars — list cars
   •	GET /cars/{id} — get by id
   •	POST /cars — create
   •	PUT /cars/{id} — update
   •	DELETE /cars/{id} — delete
+```
  ## Users
+ ```
   •	GET /users — list users
   •	GET /users/{id} — get by id
   •	POST /users — create (stores hashed password)
   •	PUT /users/{id} — update (non-password fields)
   •	DELETE /users/{id} — delete
+```
   ## Reservations
+  ```
   •	GET /reservations — list reservations
   •	GET /reservations/{id} — get by id
   •	POST /reservations — create
   •	PUT /reservations/{id} — update
   •	DELETE /reservations/{id} — delete
+```
   
   ## Endpoint examples
   ## Cars
