@@ -4,17 +4,22 @@ import prof.entities.Car
 import prof.entities.Reservation
 import prof.entities.User
 import prof.responses.*
+import prof.enums.CarAttributeEnum
+import prof.enums.PowerSourceTypeEnum
 
 /* ---------- Car mappings ---------- */
 
+// Dynamische getters voor Car attributes
+/** Map Car -> GetCarResponse */
 fun Car.toGetCarResponse(): GetCarResponse = GetCarResponse(
     id = id,
-    make = make,
-    model = model,
-    price = price,
-    pickupLocation = pickupLocation,
-    category = category,
-    powerSourceType = powerSourceType,
+    make = getAttribute(CarAttributeEnum.MAKE) ?: "",
+    model = getAttribute(CarAttributeEnum.MODEL) ?: "",
+    price = getAttributeFloat(CarAttributeEnum.PRICE),
+    pickupLocation = getAttribute(CarAttributeEnum.PICKUP_LOCATION) ?: "",
+    category = getAttribute(CarAttributeEnum.CATEGORY) ?: "",
+    powerSourceType = getAttributeEnum(CarAttributeEnum.POWER_SOURCE_TYPE, PowerSourceTypeEnum::class.java) as? PowerSourceTypeEnum
+        ?: PowerSourceTypeEnum.ICE,
     imageFileNames = imageFileNames.toList(),
     createdAt = createdAt,
     modifiedAt = modifiedAt
@@ -24,12 +29,12 @@ fun Car.toGetCarResponse(): GetCarResponse = GetCarResponse(
 fun List<Car>.toGetCarResponseList(): List<GetCarResponse> =
     map { it.toGetCarResponse() }
 
-/** List<Car> -> GetCarsResponse (what carRoutes.kt is importing/using) */
 fun List<Car>.toGetCarsResponse(): GetCarsResponse =
-    GetCarsResponse(GetCarResponseList = map { it.toGetCarResponse() }.toMutableList())
+    GetCarsResponse(
+        GetCarResponseList = map { it.toGetCarResponse() }.toMutableList()
+    )
 
-
-/* ---------- prof.security.User mappings ---------- */
+/* ---------- User mappings ---------- */
 
 fun User.toGetUserResponse(): GetUserResponse = GetUserResponse(
     id = id,
@@ -40,11 +45,9 @@ fun User.toGetUserResponse(): GetUserResponse = GetUserResponse(
     modifiedAt = modifiedAt
 )
 
-/** List<prof.security.User> -> List<GetUserResponse> */
 fun List<User>.toGetUserResponseList(): List<GetUserResponse> =
     map { it.toGetUserResponse() }
 
-/** List<prof.security.User> -> GetUsersResponse (for userRoutes.kt) */
 fun List<User>.toGetUsersResponse(): GetUsersResponse =
     GetUsersResponse(GetUsersResponseList = map { it.toGetUserResponse() }.toMutableList())
 
@@ -61,10 +64,8 @@ fun Reservation.toGetReservationResponse(): GetReservationResponse = GetReservat
     modifiedAt = modifiedAt
 )
 
-/** List<Reservation> -> List<GetReservationResponse> */
 fun List<Reservation>.toGetReservationResponseList(): List<GetReservationResponse> =
     map { it.toGetReservationResponse() }
 
-/** List<Reservation> -> GetReservationsResponse (for reservationRoutes.kt) */
 fun List<Reservation>.toGetReservationsResponse(): GetReservationsResponse =
     GetReservationsResponse(GetReservationsResponseList = map { it.toGetReservationResponse() }.toMutableList())

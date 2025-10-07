@@ -5,12 +5,16 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import prof.db.FakeCarRepository
+import prof.db.FakeEntityAttributeRepository
 import prof.db.FakeReservationRepository
 import prof.db.FakeUserRepository
 import prof.db.sql.SqlCarRepository
 import prof.db.sql.SqlReservationRepository
 import prof.db.sql.SqlUserRepository
 import prof.db.sql.DatabaseFactory
+import prof.db.sql.SqlEntityAttributeRepository
+import prof.db.sql.SqlTermRepository
+import prof.routes.TermRoute
 import prof.routes.carRoutes
 import prof.routes.reservationRoutes
 import prof.routes.userRoutes

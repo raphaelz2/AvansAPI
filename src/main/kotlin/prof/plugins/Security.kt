@@ -9,6 +9,7 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import prof.AuthenticatedUser
 import prof.db.FakeUserRepository
 import prof.db.sql.SqlUserRepository
 import prof.entities.LoginRequest
@@ -34,7 +35,13 @@ fun Application.configureSecurity() {
                     .build()
             )
             validate { credential ->
-                if (credential.payload.audience.contains(jwtAudience)) JWTPrincipal(credential.payload) else null
+                val email = credential.payload.getClaim("email").asString()
+                val id = credential.payload.getClaim("id").asLong()
+                if (email != null && id != null && credential.payload.audience.contains(jwtAudience)) {
+                    AuthenticatedUser(id, email)
+                } else {
+                    null
+                }
             }
             challenge { _, _ ->
                 call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
@@ -60,6 +67,7 @@ fun Application.configureSecurity() {
                 .withAudience(jwtAudience)
                 .withIssuer(jwtDomain)
                 .withClaim("email", user.email)
+                .withClaim("id", user.id)
                 .withExpiresAt(Date(System.currentTimeMillis() + 600_000))
                 .sign(Algorithm.HMAC256(secret))
 

@@ -16,12 +16,6 @@ object Users : Table("users") {
 
 object Cars : Table("cars") {
     val id = long("id").autoIncrement()
-    val make = varchar("make", 100)
-    val model = varchar("model", 100)
-    val price = float("price")
-    val pickupLocation = varchar("pickup_location", 200)
-    val category = varchar("category", 40)
-    val powerSourceType = varchar("power_source_type", 20)
     val createdAt = varchar("created_at", 40)
     val modifiedAt = varchar("modified_at", 40)
     override val primaryKey = PrimaryKey(id)
@@ -40,6 +34,31 @@ object Reservations : Table("reservations") {
     val endTime = varchar("end_time", 40)
     val userId = long("user_id").references(Users.id, onDelete = ReferenceOption.CASCADE)
     val carId = long("car_id").references(Cars.id, onDelete = ReferenceOption.CASCADE)
+    val createdAt = varchar("created_at", 40)
+    val modifiedAt = varchar("modified_at", 40)
+    override val primaryKey = PrimaryKey(id)
+}
+
+object EntityAttributes : Table("entity_attributes") {
+    val id = long("id").autoIncrement()
+    val entity = varchar("entity", 50)
+    val entityId = long("entity_id")
+    val attribute = varchar("attribute", 100)
+    val value = text("value")
+    val createdAt = varchar("created_at", 50)
+    val modifiedAt = varchar("modified_at", 50)
+
+    override val primaryKey = PrimaryKey(id)
+}
+
+
+object Terms : Table("terms") {
+    val id = long("id").autoIncrement()
+    val title = varchar("title", 255)
+    val content = text("content")
+    val version = integer("version")
+    val active = bool("active")
+    val userId = long("user_id").references(Users.id, onDelete = ReferenceOption.CASCADE)
     val createdAt = varchar("created_at", 40)
     val modifiedAt = varchar("modified_at", 40)
     override val primaryKey = PrimaryKey(id)
