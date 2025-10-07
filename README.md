@@ -89,12 +89,11 @@ If enabled with the Docs.kt plugin:
 •	OpenAPI JSON: http://localhost:8080/api.json
 
 
-4. Explore Predefined HTTP Requests
+. Explore Predefined HTTP Requests
 
 - Once the app is running, you can interact with predefined HTTP requests for entities such as Rental, User, and Vehicle.
 
 - Requests are organized in subdirectories according to entity type.
-- 
 ## Usage
 
 ## 1) Seed an Admin (one-time)
