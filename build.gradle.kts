@@ -10,6 +10,7 @@ plugins {
 
 group = "prof"
 version = "0.0.2"
+val ktor_version = "3.0.0-rc-2"
 
 application {
     mainClass.set("io.ktor.server.netty.EngineMain")
@@ -54,4 +55,6 @@ dependencies {
 
     // Serves Swagger UI for that spec:
     implementation("io.github.smiley4:ktor-swagger-ui:5.3.0")
+    testImplementation("io.ktor:ktor-server-test-host-jvm:${ktor_version}")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:${kotlin_version}")
 }
