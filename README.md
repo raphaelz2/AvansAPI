@@ -75,7 +75,7 @@ Default config is in src/main/resources/application.conf.
 - Run the application by executing the main() function in Application.kt.
   Or Run it using Gradle after making a new Gradle run configuration:
   ``` run
-    # Windows
+  # Windows
   gradlew.bat clean run
   # macOS/Linux
   ./gradlew clean run
