@@ -1,11 +1,6 @@
 package prof.db
 
-import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import prof.entities.EntityAttribute
-import prof.enums.EntityEnum
 
 object FakeEntityAttributeRepository : EntityAttributeRepository {
     private var currentId: Long = 0L

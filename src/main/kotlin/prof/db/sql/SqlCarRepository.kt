@@ -11,7 +11,6 @@ import prof.entities.EntityAttribute
 import prof.enums.CarAttributeEnum
 import prof.enums.EntityEnum
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import prof.enums.PowerSourceTypeEnum
 
 class SqlCarRepository(
     private val entityAttributeRepo: SqlEntityAttributeRepository

@@ -7,7 +7,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import prof.Requests.CreateCarRequest
 import prof.Requests.UpdateCarRequest
-import prof.db.FakeCarRepository.entityAttributeRepo
 import prof.entities.Car
 import prof.entities.EntityAttribute
 import prof.enums.CarAttributeEnum
