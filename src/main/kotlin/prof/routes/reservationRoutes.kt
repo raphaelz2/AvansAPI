@@ -31,6 +31,14 @@ fun Route.reservationRoutes(reservationRepository: ReservationRepository) {
         // Create a new reservation
         post {
             val reservation = call.receive<CreateReservationRequest>()
+
+            val canBookOnTime = reservationRepository.canBookOnTime(reservation)
+
+            if(!canBookOnTime)
+            {
+                call.respond(HttpStatusCode.BadRequest, "It has already been booked")
+            }
+
             val createdReservation = reservationRepository.create(reservation)
             call.respond(HttpStatusCode.Created, createdReservation.toGetReservationResponse())
         }
