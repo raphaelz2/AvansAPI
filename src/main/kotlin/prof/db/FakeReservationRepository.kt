@@ -7,7 +7,10 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import prof.Requests.CreateReservationRequest
 import prof.Requests.UpdateReservationRequest
+import prof.db.sql.Terms
 import prof.entities.Reservation
+import prof.enums.ReservationStatusEnum
+import java.math.BigDecimal
 
 object FakeReservationRepository : ReservationRepository {
     private var currentId: Long = 0L
@@ -20,7 +23,13 @@ object FakeReservationRepository : ReservationRepository {
                 CreateReservationRequest(
                     startTime = LocalDateTime(2024, 10, 15, 13, 0),
                     endTime   = LocalDateTime(2024, 10, 15, 15, 0),
-                    userId = 1, carId = 1,
+                    userId = 1,
+                    carId = 1,
+                    termId = 1,
+                    status = ReservationStatusEnum.CONFIRMED,
+                    startMileage = 1,
+                    endMileage = 2,
+                    costPerKm = "2.00",
                     createdAt = LocalDateTime(2024, 3, 27, 2, 16, 20),
                     modifiedAt = LocalDateTime(2024, 3, 27, 2, 16, 20)
                 )
@@ -29,7 +38,13 @@ object FakeReservationRepository : ReservationRepository {
                 CreateReservationRequest(
                     startTime = LocalDateTime(2024, 10, 16, 9, 0),
                     endTime   = LocalDateTime(2024, 10, 16, 11, 0),
-                    userId = 2, carId = 2,
+                    userId = 2,
+                    carId = 2,
+                    termId = 1,
+                    status = ReservationStatusEnum.CONFIRMED,
+                    startMileage = 1,
+                    endMileage = 2,
+                    costPerKm = "2.00",
                     createdAt = LocalDateTime(2024, 3, 27, 2, 16, 20),
                     modifiedAt = LocalDateTime(2024, 3, 27, 2, 16, 20)
                 )
@@ -53,6 +68,11 @@ object FakeReservationRepository : ReservationRepository {
             endTime = entity.endTime,
             userId = entity.userId,
             carId = entity.carId,
+            termId = entity.termId,
+            status = entity.status,
+            startMileage = entity.startMileage,
+            endMileage = entity.endMileage,
+            costPerKm = BigDecimal(entity.costPerKm),
             createdAt = entity.createdAt,
             modifiedAt = entity.modifiedAt
         )
@@ -69,6 +89,11 @@ object FakeReservationRepository : ReservationRepository {
                 endTime = entity.endTime,
                 userId = entity.userId,
                 carId = entity.carId,
+                termId = entity.termId,
+                status = entity.status,
+                startMileage = entity.startMileage,
+                endMileage = entity.endMileage,
+                costPerKm = entity.costPerKm,
                 createdAt = entity.createdAt,
                 modifiedAt = entity.modifiedAt
             )
