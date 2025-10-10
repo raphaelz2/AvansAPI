@@ -7,9 +7,11 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.utils.io.*
+import prof.Requests.CarSearchFilterRequest
 import prof.Requests.CreateCarRequest
 import prof.Requests.UpdateCarRequest
 import prof.db.CarRepository
+import prof.enums.PowerSourceTypeEnum
 import prof.mapperExtentions.toGetCarResponse
 import prof.mapperExtentions.toGetCarsResponse
 import java.io.File
@@ -38,6 +40,49 @@ fun Route.carRoutes(carRepository: CarRepository) {
             val car = call.receive<CreateCarRequest>()
             val createdCar = carRepository.create(car)
             call.respond(HttpStatusCode.Created, createdCar.toGetCarResponse())
+        }
+
+        get("/search") {
+            val filter = CarSearchFilterRequest(
+                latitude = call.parameters["latitude"]?.toDoubleOrNull(),
+                longitude = call.parameters["longitude"]?.toDoubleOrNull(),
+                maxDistanceKm = call.parameters["maxDistanceKm"]?.toDoubleOrNull(),
+
+                make = call.parameters["make"],
+                model = call.parameters["model"],
+                powerSourceType = call.parameters["powerSourceType"]?.let {
+                    try {
+                        PowerSourceTypeEnum.valueOf(it.uppercase()) } catch (e: Exception) { null }
+                },
+                category = call.parameters["category"],
+                fuelType = call.parameters["fuelType"],
+                transmission = call.parameters["transmission"],
+                color = call.parameters["color"],
+                interiorColor = call.parameters["interiorColor"],
+                exteriorType = call.parameters["exteriorType"],
+
+                minPrice = call.parameters["minPrice"]?.toDoubleOrNull(),
+                maxPrice = call.parameters["maxPrice"]?.toDoubleOrNull(),
+                minSeats = call.parameters["minSeats"]?.toIntOrNull(),
+                maxSeats = call.parameters["maxSeats"]?.toIntOrNull(),
+                minDoors = call.parameters["minDoors"]?.toIntOrNull(),
+                maxDoors = call.parameters["maxDoors"]?.toIntOrNull(),
+                minModelYear = call.parameters["minModelYear"]?.toIntOrNull(),
+                maxModelYear = call.parameters["maxModelYear"]?.toIntOrNull(),
+                minMileage = call.parameters["minMileage"]?.toIntOrNull(),
+                maxMileage = call.parameters["maxMileage"]?.toIntOrNull(),
+
+                searchQuery = call.parameters["q"]
+            )
+
+            val cars = carRepository.search(filter)
+            call.respond(HttpStatusCode.OK, cars.toGetCarsResponse())
+        }
+
+        post("/search") {
+            val filter = call.receive<CarSearchFilterRequest>()
+            val cars = carRepository.search(filter)
+            call.respond(HttpStatusCode.OK, cars.toGetCarsResponse())
         }
 
         // Update an existing car by ID
