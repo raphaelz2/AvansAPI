@@ -3,7 +3,7 @@ package prof
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import prof.security.Passwords
-
+//test
 class PasswordTest {
 
     @Test
