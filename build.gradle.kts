@@ -57,4 +57,10 @@ dependencies {
     implementation("io.github.smiley4:ktor-swagger-ui:5.3.0")
     testImplementation("io.ktor:ktor-server-test-host-jvm:${ktor_version}")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:${kotlin_version}")
+
+
+        implementation("org.junit.jupiter:junit-jupiter:5.10.0") // of de nieuwste versie
+    tasks.test {
+        useJUnitPlatform()
+    }
 }
