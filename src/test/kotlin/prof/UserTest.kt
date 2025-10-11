@@ -9,6 +9,7 @@ import prof.security.Passwords
 
 
 class UserTest {
+    @Test
     fun `create user stores hashed password and is verifiable`() = runBlocking {
         val req = CreateUserRequest(
             firstName = "Admin",
