@@ -2,6 +2,7 @@ package prof.db.sql
 
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import prof.Requests.CreateCarRequest
 import prof.Requests.UpdateCarRequest
@@ -10,7 +11,6 @@ import prof.entities.Car
 import prof.entities.EntityAttribute
 import prof.enums.CarAttributeEnum
 import prof.enums.EntityEnum
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
 class SqlCarRepository(
     private val entityAttributeRepo: SqlEntityAttributeRepository
@@ -116,27 +116,102 @@ class SqlCarRepository(
         Cars.deleteWhere { Cars.id eq id } > 0
     }
 
+    // --- Nieuwe dynamische mapping voor CreateCarRequest ---
     private fun entityAttributesFromRequest(carId: Long, req: CreateCarRequest): List<EntityAttribute> {
-        val now = LocalDateTime.parse(req.createdAt.toString())
-        return listOfNotNull(
-            EntityAttribute(0, EntityEnum.CAR, carId, CarAttributeEnum.MAKE.name, req.make, now, now),
-            EntityAttribute(0, EntityEnum.CAR, carId, CarAttributeEnum.MODEL.name, req.model, now, now),
-            EntityAttribute(0, EntityEnum.CAR, carId, CarAttributeEnum.PRICE.name, req.price.toString(), now, now),
-            EntityAttribute(0, EntityEnum.CAR, carId, CarAttributeEnum.PICKUP_LOCATION.name, req.pickupLocation, now, now),
-            EntityAttribute(0, EntityEnum.CAR, carId, CarAttributeEnum.CATEGORY.name, req.category, now, now),
-            EntityAttribute(0, EntityEnum.CAR, carId, CarAttributeEnum.POWER_SOURCE_TYPE.name, req.powerSourceType.name, now, now)
-        )
+        val now = req.createdAt
+
+        val attrs = mutableListOf<EntityAttribute>()
+
+        fun add(enum: CarAttributeEnum, value: Any?) {
+            if (value != null) attrs += EntityAttribute(
+                0,
+                EntityEnum.CAR,
+                carId,
+                enum.name,
+                value.toString(),
+                now,
+                now
+            )
+        }
+
+        add(CarAttributeEnum.MAKE, req.make)
+        add(CarAttributeEnum.MODEL, req.model)
+        add(CarAttributeEnum.PRICE, req.price)
+        add(CarAttributeEnum.PICKUP_LOCATION, req.pickupLocation)
+        add(CarAttributeEnum.CATEGORY, req.category)
+        add(CarAttributeEnum.POWER_SOURCE_TYPE, req.powerSourceType.name)
+        add(CarAttributeEnum.COLOR, req.color)
+        add(CarAttributeEnum.ENGINE_TYPE, req.engineType)
+        add(CarAttributeEnum.ENGINE_POWER, req.enginePower)
+        add(CarAttributeEnum.FUEL_TYPE, req.fuelType)
+        add(CarAttributeEnum.TRANSMISSION, req.transmission)
+        add(CarAttributeEnum.INTERIOR_TYPE, req.interiorType)
+        add(CarAttributeEnum.INTERIOR_COLOR, req.interiorColor)
+        add(CarAttributeEnum.EXTERIOR_TYPE, req.exteriorType)
+        add(CarAttributeEnum.EXTERIOR_FINISH, req.exteriorFinish)
+        add(CarAttributeEnum.WHEEL_SIZE, req.wheelSize)
+        add(CarAttributeEnum.WHEEL_TYPE, req.wheelType)
+        add(CarAttributeEnum.SEATS, req.seats)
+        add(CarAttributeEnum.DOORS, req.doors)
+        add(CarAttributeEnum.MODEL_YEAR, req.modelYear)
+        add(CarAttributeEnum.LICENSE_PLATE, req.licensePlate)
+        add(CarAttributeEnum.MILEAGE, req.mileage)
+        add(CarAttributeEnum.VIN_NUMBER, req.vinNumber)
+        add(CarAttributeEnum.TRADE_NAME, req.tradeName)
+        add(CarAttributeEnum.BPM, req.bpm)
+        add(CarAttributeEnum.CURB_WEIGHT, req.curbWeight)
+        add(CarAttributeEnum.MAX_WEIGHT, req.maxWeight)
+        add(CarAttributeEnum.FIRST_REGISTRATION_DATE, req.firstRegistrationDate)
+
+        return attrs
     }
 
+    // --- Nieuwe dynamische mapping voor UpdateCarRequest ---
     private fun entityAttributesFromRequest(carId: Long, req: UpdateCarRequest): List<EntityAttribute> {
-        val now = LocalDateTime.parse(req.modifiedAt.toString())
-        return listOfNotNull(
-            EntityAttribute(0, EntityEnum.CAR, carId, CarAttributeEnum.MAKE.name, req.make, now, now),
-            EntityAttribute(0, EntityEnum.CAR, carId, CarAttributeEnum.MODEL.name, req.model, now, now),
-            EntityAttribute(0, EntityEnum.CAR, carId, CarAttributeEnum.PRICE.name, req.price.toString(), now, now),
-            EntityAttribute(0, EntityEnum.CAR, carId, CarAttributeEnum.PICKUP_LOCATION.name, req.pickupLocation, now, now),
-            EntityAttribute(0, EntityEnum.CAR, carId, CarAttributeEnum.CATEGORY.name, req.category, now, now),
-            EntityAttribute(0, EntityEnum.CAR, carId, CarAttributeEnum.POWER_SOURCE_TYPE.name, req.powerSourceType.name, now, now)
-        )
+        val now = req.modifiedAt
+        val attrs = mutableListOf<EntityAttribute>()
+
+        fun add(enum: CarAttributeEnum, value: Any?) {
+            if (value != null) attrs += EntityAttribute(
+                0,
+                EntityEnum.CAR,
+                carId,
+                enum.name,
+                value.toString(),
+                now,
+                now
+            )
+        }
+
+        add(CarAttributeEnum.MAKE, req.make)
+        add(CarAttributeEnum.MODEL, req.model)
+        add(CarAttributeEnum.PRICE, req.price)
+        add(CarAttributeEnum.PICKUP_LOCATION, req.pickupLocation)
+        add(CarAttributeEnum.CATEGORY, req.category)
+        add(CarAttributeEnum.POWER_SOURCE_TYPE, req.powerSourceType.name)
+        add(CarAttributeEnum.COLOR, req.color)
+        add(CarAttributeEnum.ENGINE_TYPE, req.engineType)
+        add(CarAttributeEnum.ENGINE_POWER, req.enginePower)
+        add(CarAttributeEnum.FUEL_TYPE, req.fuelType)
+        add(CarAttributeEnum.TRANSMISSION, req.transmission)
+        add(CarAttributeEnum.INTERIOR_TYPE, req.interiorType)
+        add(CarAttributeEnum.INTERIOR_COLOR, req.interiorColor)
+        add(CarAttributeEnum.EXTERIOR_TYPE, req.exteriorType)
+        add(CarAttributeEnum.EXTERIOR_FINISH, req.exteriorFinish)
+        add(CarAttributeEnum.WHEEL_SIZE, req.wheelSize)
+        add(CarAttributeEnum.WHEEL_TYPE, req.wheelType)
+        add(CarAttributeEnum.SEATS, req.seats)
+        add(CarAttributeEnum.DOORS, req.doors)
+        add(CarAttributeEnum.MODEL_YEAR, req.modelYear)
+        add(CarAttributeEnum.LICENSE_PLATE, req.licensePlate)
+        add(CarAttributeEnum.MILEAGE, req.mileage)
+        add(CarAttributeEnum.VIN_NUMBER, req.vinNumber)
+        add(CarAttributeEnum.TRADE_NAME, req.tradeName)
+        add(CarAttributeEnum.BPM, req.bpm)
+        add(CarAttributeEnum.CURB_WEIGHT, req.curbWeight)
+        add(CarAttributeEnum.MAX_WEIGHT, req.maxWeight)
+        add(CarAttributeEnum.FIRST_REGISTRATION_DATE, req.firstRegistrationDate)
+
+        return attrs
     }
 }
