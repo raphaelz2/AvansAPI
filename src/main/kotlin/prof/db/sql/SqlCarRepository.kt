@@ -4,6 +4,7 @@ import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
+import prof.Requests.CostOfOwnerShipRequest
 import prof.Requests.CreateCarRequest
 import prof.Requests.UpdateCarRequest
 import prof.db.CarRepository
@@ -11,6 +12,10 @@ import prof.entities.Car
 import prof.entities.EntityAttribute
 import prof.enums.CarAttributeEnum
 import prof.enums.EntityEnum
+import prof.enums.PowerSourceTypeEnum
+import prof.responses.GetCostOfOwnerShipResponse
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 class SqlCarRepository(
     private val entityAttributeRepo: SqlEntityAttributeRepository
@@ -107,6 +112,61 @@ class SqlCarRepository(
         }
     }
 
+    override suspend fun calculateCostOfOwnerShip(entity: CostOfOwnerShipRequest): GetCostOfOwnerShipResponse {
+        val car = findById(entity.carId)
+            ?: throw IllegalArgumentException("Car not found")
+
+        val category = car.getAttribute(CarAttributeEnum.CATEGORY) ?: "Standard"
+        val powerSource = car.getAttributeEnum(CarAttributeEnum.POWER_SOURCE_TYPE, PowerSourceTypeEnum::class.java)
+            ?: PowerSourceTypeEnum.ICE
+        val price = car.getAttributeFloat(CarAttributeEnum.PRICE)?.toBigDecimal() ?: BigDecimal.ZERO
+
+        val avgConsumption = when (powerSource) {
+            PowerSourceTypeEnum.ICE -> 7.5
+            PowerSourceTypeEnum.HEV -> 5.0
+            PowerSourceTypeEnum.BEV -> 18.0
+            PowerSourceTypeEnum.FCEV -> 1.0
+        }
+
+        val energyPrice = if (entity.energyPricePerUnit > 0)
+            entity.energyPricePerUnit
+        else when (powerSource) {
+            PowerSourceTypeEnum.BEV -> 0.25
+            PowerSourceTypeEnum.FCEV -> 12.0
+            else -> 2.0
+        }
+
+
+        val yearlyEnergyCost = BigDecimal(entity.kilometersPerYear)
+            .divide(BigDecimal(100), 10, RoundingMode.HALF_UP)
+            .multiply(BigDecimal(avgConsumption))
+            .multiply(BigDecimal(energyPrice))
+            .setScale(2, RoundingMode.HALF_UP)
+
+        val yearlyMaintenance = when (category.lowercase()) {
+            "luxury" -> BigDecimal(1200)
+            "suv" -> BigDecimal(900)
+            "compact" -> BigDecimal(600)
+            else -> BigDecimal(750)
+        }
+
+        val yearlyDepreciation = price.multiply(BigDecimal("0.15")).setScale(2, RoundingMode.HALF_UP)
+        val total = yearlyEnergyCost.add(yearlyMaintenance).add(yearlyDepreciation)
+
+        return GetCostOfOwnerShipResponse(
+            carId = entity.carId,
+            category = category,
+            powerSourceType = powerSource.name,
+            kilometersPerYear = entity.kilometersPerYear,
+            energyPricePerUnit = energyPrice,
+            averageConsumptionPer100Km = avgConsumption,
+            yearlyEnergyCost = yearlyEnergyCost.toDouble(),
+            yearlyDepreciation = yearlyDepreciation.toDouble(),
+            yearlyMaintenanceCost = yearlyMaintenance.toDouble(),
+            totalYearlyCost = total.toDouble()
+        )
+    }
+
     override suspend fun delete(id: Long): Boolean = transaction {
         CarImages.deleteWhere { CarImages.carId eq id }
 
@@ -116,10 +176,9 @@ class SqlCarRepository(
         Cars.deleteWhere { Cars.id eq id } > 0
     }
 
-    // --- Nieuwe dynamische mapping voor CreateCarRequest ---
+    // --- Helpers voor CreateCarRequest ---
     private fun entityAttributesFromRequest(carId: Long, req: CreateCarRequest): List<EntityAttribute> {
         val now = req.createdAt
-
         val attrs = mutableListOf<EntityAttribute>()
 
         fun add(enum: CarAttributeEnum, value: Any?) {
@@ -162,11 +221,14 @@ class SqlCarRepository(
         add(CarAttributeEnum.CURB_WEIGHT, req.curbWeight)
         add(CarAttributeEnum.MAX_WEIGHT, req.maxWeight)
         add(CarAttributeEnum.FIRST_REGISTRATION_DATE, req.firstRegistrationDate)
+        add(CarAttributeEnum.COST_PER_KILOMETER, req.costPerKilometer)
+        add(CarAttributeEnum.DEPOSIT, req.deposit)
+        add(CarAttributeEnum.BOOKING_COST, req.bookingCost)
 
         return attrs
     }
 
-    // --- Nieuwe dynamische mapping voor UpdateCarRequest ---
+    // --- Helpers voor UpdateCarRequest ---
     private fun entityAttributesFromRequest(carId: Long, req: UpdateCarRequest): List<EntityAttribute> {
         val now = req.modifiedAt
         val attrs = mutableListOf<EntityAttribute>()
@@ -211,6 +273,9 @@ class SqlCarRepository(
         add(CarAttributeEnum.CURB_WEIGHT, req.curbWeight)
         add(CarAttributeEnum.MAX_WEIGHT, req.maxWeight)
         add(CarAttributeEnum.FIRST_REGISTRATION_DATE, req.firstRegistrationDate)
+        add(CarAttributeEnum.COST_PER_KILOMETER, req.costPerKilometer)
+        add(CarAttributeEnum.DEPOSIT, req.deposit)
+        add(CarAttributeEnum.BOOKING_COST, req.bookingCost)
 
         return attrs
     }

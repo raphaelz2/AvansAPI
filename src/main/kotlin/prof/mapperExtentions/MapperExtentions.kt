@@ -6,6 +6,9 @@ import prof.entities.User
 import prof.responses.*
 import prof.enums.CarAttributeEnum
 import prof.enums.PowerSourceTypeEnum
+import java.math.BigDecimal
+import java.math.RoundingMode
+import prof.responses.GetCostOfOwnerShipResponse
 
 /* ---------- Car mappings ---------- */
 
@@ -41,6 +44,10 @@ fun Car.toGetCarResponse(): GetCarResponse = GetCarResponse(
     curbWeight = getAttributeInt(CarAttributeEnum.CURB_WEIGHT),
     maxWeight = getAttributeInt(CarAttributeEnum.MAX_WEIGHT),
     firstRegistrationDate = getAttribute(CarAttributeEnum.FIRST_REGISTRATION_DATE),
+    bookingCost = getAttribute(CarAttributeEnum.BOOKING_COST),
+    costPerKilometer = getAttribute(CarAttributeEnum.COST_PER_KILOMETER),
+    deposit = getAttribute(CarAttributeEnum.DEPOSIT),
+
     imageFileNames = imageFileNames.toList(),
     createdAt = createdAt,
     modifiedAt = modifiedAt
@@ -65,6 +72,68 @@ fun User.toGetUserResponse(): GetUserResponse = GetUserResponse(
     createdAt = createdAt,
     modifiedAt = modifiedAt
 )
+
+fun Car.toGetCostOfOwnerShipResponse(): GetCostOfOwnerShipResponse {
+    val defaultKmPerYear = 15000
+    val defaultFuelPricePerLiter = 2.10
+
+    val category = getAttribute(CarAttributeEnum.CATEGORY) ?: "Standard"
+
+    val powerSource = getAttributeEnum(CarAttributeEnum.POWER_SOURCE_TYPE, PowerSourceTypeEnum::class.java)
+        ?: PowerSourceTypeEnum.ICE
+
+    val priceBd = getAttributeFloat(CarAttributeEnum.PRICE)?.toDouble()
+        ?.let { BigDecimal.valueOf(it) } ?: BigDecimal.ZERO
+
+    val avgConsumptionBd = when (powerSource) {
+        PowerSourceTypeEnum.ICE -> BigDecimal("7.5")
+        PowerSourceTypeEnum.HEV -> BigDecimal("5.0")
+        PowerSourceTypeEnum.BEV -> BigDecimal("18.0")
+        PowerSourceTypeEnum.FCEV -> BigDecimal("1.0")
+    }
+
+    val energyPriceBd = when (powerSource) {
+        PowerSourceTypeEnum.BEV -> BigDecimal("0.25")
+        PowerSourceTypeEnum.FCEV -> BigDecimal("12.0")
+        else -> BigDecimal.valueOf(defaultFuelPricePerLiter)
+    }
+
+    val yearlyEnergyCostBd = BigDecimal.valueOf(defaultKmPerYear.toLong())
+        .divide(BigDecimal("100"), 10, RoundingMode.HALF_UP)
+        .multiply(avgConsumptionBd)
+        .multiply(energyPriceBd)
+        .setScale(2, RoundingMode.HALF_UP)
+
+    val yearlyMaintenanceBd = when (category.lowercase()) {
+        "luxury" -> BigDecimal("1200.00")
+        "suv" -> BigDecimal("900.00")
+        "compact" -> BigDecimal("600.00")
+        else -> BigDecimal("750.00")
+    }
+
+    val yearlyDepreciationBd = priceBd
+        .multiply(BigDecimal("0.15"))
+        .setScale(2, RoundingMode.HALF_UP)
+
+    val totalBd = yearlyEnergyCostBd
+        .add(yearlyMaintenanceBd)
+        .add(yearlyDepreciationBd)
+        .setScale(2, RoundingMode.HALF_UP)
+
+    return GetCostOfOwnerShipResponse(
+        carId = id,
+        category = category,
+        powerSourceType = powerSource.name,
+        kilometersPerYear = defaultKmPerYear,
+        energyPricePerUnit = energyPriceBd.toDouble(),
+        averageConsumptionPer100Km = avgConsumptionBd.toDouble(),
+        yearlyEnergyCost = yearlyEnergyCostBd.toDouble(),
+        yearlyDepreciation = yearlyDepreciationBd.toDouble(),
+        yearlyMaintenanceCost = yearlyMaintenanceBd.toDouble(),
+        totalYearlyCost = totalBd.toDouble()
+    )
+}
+
 
 fun List<User>.toGetUserResponseList(): List<GetUserResponse> =
     map { it.toGetUserResponse() }

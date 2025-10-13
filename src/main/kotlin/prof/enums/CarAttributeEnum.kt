@@ -32,6 +32,9 @@ enum class CarAttributeEnum {
     CURB_WEIGHT,                 // Massa ledig voertuig
     MAX_WEIGHT,                  // Toegestane max massa
     FIRST_REGISTRATION_DATE,     // Datum eerste toelating
+    COST_PER_KILOMETER,          // Kosten per kilometer
+    BOOKING_COST,                // Bookings kosten
+    DEPOSIT,                     // Borg
 }
 
 val carFieldToEnumMap = mapOf(

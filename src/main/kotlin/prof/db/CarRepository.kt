@@ -1,8 +1,10 @@
 package prof.db
 
+import prof.Requests.CostOfOwnerShipRequest
 import prof.Requests.CreateCarRequest
 import prof.Requests.UpdateCarRequest
 import prof.entities.Car
+import prof.responses.GetCostOfOwnerShipResponse
 
 interface CarRepository {
     suspend fun findById(id: Long): Car?
@@ -10,5 +12,6 @@ interface CarRepository {
     suspend fun create(entity: CreateCarRequest): Car
     suspend fun addImageFileName(carId: Long, imageFileName: String)
     suspend fun update(entity: UpdateCarRequest)
+    suspend fun calculateCostOfOwnerShip(entity: CostOfOwnerShipRequest): GetCostOfOwnerShipResponse
     suspend fun delete(id: Long): Boolean
 }

@@ -35,6 +35,9 @@ class UpdateCarRequest(
     val curbWeight: Int?,
     val maxWeight: Int?,
     val firstRegistrationDate: String?,
+    val bookingCost: String?,
+    val costPerKilometer: Float?,
+    val deposit: String?,
     val imageFileNames: MutableList<String> = mutableListOf(),
     val createdAt: LocalDateTime,
     val modifiedAt: LocalDateTime
