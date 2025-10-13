@@ -59,8 +59,9 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:${kotlin_version}")
 
 
-    implementation("org.junit.jupiter:junit-jupiter:5.10.0") // of de nieuwste versie
-    tasks.test {
-        useJUnitPlatform()
-    }
+    implementation("org.junit.jupiter:junit-jupiter:5.10.0")
+
+}
+tasks.test {
+    useJUnitPlatform()
 }
