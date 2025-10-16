@@ -10,6 +10,7 @@ import prof.db.FakeReservationRepository
 import prof.db.FakeTelemetryRepository
 import prof.db.FakeUserRepository
 import prof.db.TelemetryRepository
+import prof.db.TermRepositoryInterface
 import prof.db.sql.SqlCarRepository
 import prof.db.sql.SqlReservationRepository
 import prof.db.sql.SqlUserRepository
@@ -31,6 +32,7 @@ fun Application.configureRouting() {
     val entRepo = if (useFake) FakeEntityAttributeRepository else SqlEntityAttributeRepository()
     val carRepo = if (useFake) FakeCarRepository else SqlCarRepository(entityAttributeRepo = entRepo as SqlEntityAttributeRepository)
     val telemetryRepo: TelemetryRepository = if (useFake) FakeTelemetryRepository else SqlTelemetryRepository()
+    val termRepository: TermRepositoryInterface = SqlTermRepository()
 
     if (!useFake) {
         DatabaseFactory.init(environment)
@@ -46,7 +48,7 @@ fun Application.configureRouting() {
             reservationRoutes(resRepo)
             carRoutes(carRepo)
             telemetryRoutes(telemetryRepo)
+            TermRoute(termRepository)
         }
     }
-
 }
