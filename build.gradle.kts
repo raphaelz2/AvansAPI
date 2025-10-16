@@ -47,6 +47,10 @@ dependencies {
 
     // Date/time
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
+    implementation("io.ktor:ktor-server-default-headers-jvm")
+
+    //testImplementation("io.ktor:ktor-server-tests-jvm")
+    //testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
 
     // bcrypt
     implementation("org.mindrot:jbcrypt:0.4")
@@ -60,4 +64,14 @@ dependencies {
     testImplementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("io.ktor:ktor-server-auth:${ktor_version}")
+}
+    testImplementation("io.ktor:ktor-server-test-host-jvm:${ktor_version}")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:${kotlin_version}")
+
+
+    implementation("org.junit.jupiter:junit-jupiter:5.10.0")
+
+}
+tasks.test {
+    useJUnitPlatform()
 }
