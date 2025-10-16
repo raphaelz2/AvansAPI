@@ -3,7 +3,6 @@ package prof
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.server.testing.*
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -17,7 +16,7 @@ import kotlin.test.assertEquals
 class ApplicationTest {
 
     @Test
-    fun testCarCRUDOperations() = testApplication {
+    fun testCarCRUDOperations() {
 //        // Sample Car data
 //        val car = Car(
 //            id = 1,
@@ -60,7 +59,7 @@ class ApplicationTest {
     }
 
     @Test
-    fun testReservationCreation() = testApplication {
+    fun testReservationCreation() {
 //        // Sample Reservation data
 //        val reservation = Reservation(
 //            id = 1,
@@ -88,7 +87,7 @@ class ApplicationTest {
     }
 
     @Test
-    fun testLogin() = testApplication {
+    fun testLogin() {
 //        val loginRequest = LoginRequest(email = "test@example.com", password = "password123")
 //        val loginJson = Json.encodeToString(loginRequest)
 //
