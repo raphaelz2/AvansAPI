@@ -16,6 +16,12 @@ object Users : Table("users") {
 
 object Cars : Table("cars") {
     val id = long("id").autoIncrement()
+    val make = varchar("make", 100)
+    val model = varchar("model", 100)
+    val price = float("price")
+    val pickupLocation = varchar("pickup_location", 200)
+    val category = varchar("category", 40)
+    val powerSourceType = varchar("power_source_type", 20)
     val createdAt = varchar("created_at", 40)
     val modifiedAt = varchar("modified_at", 40)
     override val primaryKey = PrimaryKey(id)
@@ -34,6 +40,11 @@ object Reservations : Table("reservations") {
     val endTime = varchar("end_time", 40)
     val userId = long("user_id").references(Users.id, onDelete = ReferenceOption.CASCADE)
     val carId = long("car_id").references(Cars.id, onDelete = ReferenceOption.CASCADE)
+    val status = integer("status")
+    val termId = long("term_id").references(Terms.id, onDelete = ReferenceOption.CASCADE)
+    val startMileage  = integer("start_mileage")
+    val endMileage   = integer("end_mileage")
+    val costPerKm = decimal("cost_per_km", precision = 10, scale = 2)
     val createdAt = varchar("created_at", 40)
     val modifiedAt = varchar("modified_at", 40)
     override val primaryKey = PrimaryKey(id)
@@ -50,8 +61,6 @@ object EntityAttributes : Table("entity_attributes") {
 
     override val primaryKey = PrimaryKey(id)
 }
-
-
 object Terms : Table("terms") {
     val id = long("id").autoIncrement()
     val title = varchar("title", 255)
@@ -62,4 +71,20 @@ object Terms : Table("terms") {
     val createdAt = varchar("created_at", 40)
     val modifiedAt = varchar("modified_at", 40)
     override val primaryKey = PrimaryKey(id)
+}
+
+object TelemetryLogs : Table("telemetry_logs") {
+    val tripId = long("trip_id").autoIncrement()
+    val userId = long("user_id")
+    val carId = long("car_id")
+    val timestamp = varchar("timestamp", 40) // ISO string
+    val tripDistanceKm = double("trip_distance_km")
+    val tripDurationMin = integer("trip_duration_min")
+    val avgSpeedKmh = double("avg_speed_kmh")
+    val maxSpeedKmh = double("max_speed_kmh")
+    val harshBrakes = integer("harsh_brakes")
+    val harshAccelerations = integer("harsh_accelerations")
+    val corneringScore = integer("cornering_score")
+    val ecoScore = integer("eco_score")
+    override val primaryKey = PrimaryKey(tripId)
 }

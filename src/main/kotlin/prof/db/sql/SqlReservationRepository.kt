@@ -8,6 +8,8 @@ import prof.Requests.CreateReservationRequest
 import prof.Requests.UpdateReservationRequest
 import prof.db.ReservationRepository
 import prof.entities.Reservation
+import prof.enums.ReservationStatusEnum
+import java.math.BigDecimal
 
 class SqlReservationRepository : ReservationRepository {
 
@@ -17,6 +19,12 @@ class SqlReservationRepository : ReservationRepository {
         endTime = LocalDateTime.parse(row[Reservations.endTime]),
         userId = row[Reservations.userId],
         carId = row[Reservations.carId],
+        status = ReservationStatusEnum.fromValue(row[Reservations.status])
+            ?: error("Unknown status value: ${row[Reservations.status]}"),
+        termId = row[Reservations.termId],
+        startMileage = row[Reservations.startMileage],
+        endMileage = row[Reservations.endMileage],
+        costPerKm = row[Reservations.costPerKm],
         createdAt = LocalDateTime.parse(row[Reservations.createdAt]),
         modifiedAt = LocalDateTime.parse(row[Reservations.modifiedAt])
     )
@@ -30,11 +38,17 @@ class SqlReservationRepository : ReservationRepository {
     }
 
     override suspend fun create(entity: CreateReservationRequest): Reservation = transaction {
+        println("entity: $entity")
         val newId: Long = Reservations.insert { st ->
             st[startTime] = entity.startTime.toString()
             st[endTime] = entity.endTime.toString()
             st[userId] = entity.userId
             st[carId] = entity.carId
+            st[termId] = entity.termId
+            st[status] = entity.status.value
+            st[startMileage] = entity.startMileage
+            st[endMileage] = entity.endMileage
+            st[costPerKm] = BigDecimal(entity.costPerKm)
             st[createdAt] = entity.createdAt.toString()
             st[modifiedAt] = entity.modifiedAt.toString()
         } get Reservations.id
@@ -48,6 +62,11 @@ class SqlReservationRepository : ReservationRepository {
                 st[endTime] = entity.endTime.toString()
                 st[userId] = entity.userId
                 st[carId] = entity.carId
+                st[termId] = entity.termId
+                st[status] = entity.status.value
+                st[startMileage] = entity.startMileage
+                st[endMileage] = entity.endMileage
+                st[costPerKm] = entity.costPerKm
                 st[createdAt] = entity.createdAt.toString()
                 st[modifiedAt] = entity.modifiedAt.toString()
             }

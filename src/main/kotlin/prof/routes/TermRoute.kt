@@ -15,6 +15,7 @@ import prof.mapperExtentions.toGetTermResponseList
 fun Route.TermRoute(TermRepository: TermRepositoryInterface) {
     route("/terms") {
         get {
+            println("GET /terms")
             val user = call.principal<AuthenticatedUser>()!!
             val terms = TermRepository.findAll(user.id)
 
