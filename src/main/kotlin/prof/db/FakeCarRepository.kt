@@ -8,6 +8,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import prof.Requests.CarSearchFilterRequest
+import prof.Requests.CostOfOwnerShipRequest
 import prof.Requests.CreateCarRequest
 import prof.Requests.UpdateCarRequest
 import prof.db.sql.Cars
@@ -62,7 +63,10 @@ object FakeCarRepository : CarRepository {
                     firstRegistrationDate = "2020-03-15",
                     imageFileNames = mutableListOf(),
                     createdAt = LocalDateTime(2024, 3, 27, 2, 16, 20),
-                    modifiedAt = LocalDateTime(2024, 3, 27, 2, 16, 20)
+                    modifiedAt = LocalDateTime(2024, 3, 27, 2, 16, 20),
+                    bookingCost = "25.00",
+                    costPerKilometer = 0.29,
+                    deposit = "100",
                 )
             )
 
@@ -98,7 +102,10 @@ object FakeCarRepository : CarRepository {
                     firstRegistrationDate = "2023-02-01",
                     imageFileNames = mutableListOf(),
                     createdAt = LocalDateTime(2024, 3, 27, 2, 16, 20),
-                    modifiedAt = LocalDateTime(2024, 3, 27, 2, 16, 20)
+                    modifiedAt = LocalDateTime(2024, 3, 27, 2, 16, 20),
+                    bookingCost = "25.00",
+                    costPerKilometer = 0.29,
+                    deposit = "100",
                 )
             )
         }

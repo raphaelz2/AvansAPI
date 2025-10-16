@@ -1,5 +1,7 @@
 package prof.db
 
+import prof.Requests.CarSearchFilterRequest
+import prof.Requests.CostOfOwnerShipRequest
 import prof.Requests.CreateCarRequest
 import prof.Requests.UpdateCarRequest
 import prof.entities.Car
