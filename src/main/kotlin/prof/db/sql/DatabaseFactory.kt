@@ -38,7 +38,7 @@ object DatabaseFactory {
         Database.connect(dataSource)
 
         transaction {
-            SchemaUtils.create(Users, Cars, Reservations, CarImages, Terms)
+            SchemaUtils.create(Users, Cars, Reservations, CarImages, TelemetryLogs, Terms)
 
             //seeders
             prof.db.sql.seeders.MainSeeder().run()

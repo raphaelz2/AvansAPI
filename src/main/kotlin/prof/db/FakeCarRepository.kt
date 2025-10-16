@@ -8,6 +8,9 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import prof.Requests.CarSearchFilterRequest
+import java.math.BigDecimal
+import java.math.RoundingMode
+import prof.Requests.CostOfOwnerShipRequest
 import prof.Requests.CreateCarRequest
 import prof.Requests.UpdateCarRequest
 import prof.db.sql.Cars
@@ -18,6 +21,7 @@ import prof.enums.EntityEnum
 import prof.enums.PowerSourceTypeEnum
 import prof.utils.LocationUtils
 import kotlin.text.isNullOrBlank
+import prof.responses.GetCostOfOwnerShipResponse
 
 object FakeCarRepository : CarRepository {
 
@@ -57,6 +61,9 @@ object FakeCarRepository : CarRepository {
                     curbWeight = 1250,
                     maxWeight = 1800,
                     firstRegistrationDate = "2020-03-15",
+                    bookingCost = "25.00",
+                    costPerKilometer = 0.29,
+                    deposit = "100",
                     imageFileNames = mutableListOf(),
                     createdAt = LocalDateTime(2024, 3, 27, 2, 16, 20),
                     modifiedAt = LocalDateTime(2024, 3, 27, 2, 16, 20)
@@ -92,6 +99,9 @@ object FakeCarRepository : CarRepository {
                     bpm = 0f,
                     curbWeight = 1750,
                     maxWeight = 2200,
+                    bookingCost = "25.00",
+                    costPerKilometer = 0.29,
+                    deposit = "100",
                     firstRegistrationDate = "2023-02-01",
                     imageFileNames = mutableListOf(),
                     createdAt = LocalDateTime(2024, 3, 27, 2, 16, 20),
@@ -128,7 +138,6 @@ object FakeCarRepository : CarRepository {
 
         val attrs = mutableListOf<EntityAttribute>()
 
-        // Automatisch alle niet-nulle velden toevoegen
         fun addAttr(enum: CarAttributeEnum, value: Any?) {
             if (value != null) attrs += EntityAttribute(
                 id = 0,
@@ -169,6 +178,9 @@ object FakeCarRepository : CarRepository {
         addAttr(CarAttributeEnum.CURB_WEIGHT, entity.curbWeight)
         addAttr(CarAttributeEnum.MAX_WEIGHT, entity.maxWeight)
         addAttr(CarAttributeEnum.FIRST_REGISTRATION_DATE, entity.firstRegistrationDate)
+        addAttr(CarAttributeEnum.BOOKING_COST, entity.bookingCost)
+        addAttr(CarAttributeEnum.DEPOSIT, entity.deposit)
+        addAttr(CarAttributeEnum.COST_PER_KILOMETER, entity.costPerKilometer)
 
         attrs.forEach { entityAttributeRepo.createBlocking(it) }
 
@@ -381,6 +393,62 @@ object FakeCarRepository : CarRepository {
         }
 
         filteredCars
+    override suspend fun calculateCostOfOwnerShip(entity: CostOfOwnerShipRequest): GetCostOfOwnerShipResponse {
+        val car = findById(entity.carId)
+            ?: throw IllegalArgumentException("Car not found")
+
+        val category = car.getAttribute(CarAttributeEnum.CATEGORY) ?: "Standard"
+        val powerSource = car.getAttributeEnum(CarAttributeEnum.POWER_SOURCE_TYPE, PowerSourceTypeEnum::class.java)
+            ?: PowerSourceTypeEnum.ICE
+        val price = BigDecimal(car.getAttributeFloat(CarAttributeEnum.PRICE)?.toString() ?: "0.0")
+
+        val avgConsumption = when (powerSource) {
+            PowerSourceTypeEnum.ICE -> BigDecimal("7.5")
+            PowerSourceTypeEnum.HEV -> BigDecimal("5.0")
+            PowerSourceTypeEnum.BEV -> BigDecimal("18.0")
+            PowerSourceTypeEnum.FCEV -> BigDecimal("1.0")
+        }
+
+        val energyPrice = when (powerSource) {
+            PowerSourceTypeEnum.BEV -> BigDecimal("0.25")
+            PowerSourceTypeEnum.FCEV -> BigDecimal("12.0")
+            else -> BigDecimal(entity.energyPricePerUnit.toString())
+        }
+
+        val yearlyEnergyCost = BigDecimal(entity.kilometersPerYear)
+            .divide(BigDecimal("100"), 10, RoundingMode.HALF_UP)
+            .multiply(avgConsumption)
+            .multiply(energyPrice)
+            .setScale(2, RoundingMode.HALF_UP)
+
+        val yearlyMaintenance = when (category.lowercase()) {
+            "luxury" -> BigDecimal("1200.00")
+            "suv" -> BigDecimal("900.00")
+            "compact" -> BigDecimal("600.00")
+            else -> BigDecimal("750.00")
+        }
+
+        val yearlyDepreciation = price
+            .multiply(BigDecimal("0.15"))
+            .setScale(2, RoundingMode.HALF_UP)
+
+        val total = yearlyEnergyCost
+            .add(yearlyMaintenance)
+            .add(yearlyDepreciation)
+            .setScale(2, RoundingMode.HALF_UP)
+
+        return GetCostOfOwnerShipResponse(
+            carId = entity.carId,
+            category = category,
+            powerSourceType = powerSource.name,
+            kilometersPerYear = entity.kilometersPerYear,
+            energyPricePerUnit = energyPrice.toDouble(),
+            averageConsumptionPer100Km = avgConsumption.toDouble(),
+            yearlyEnergyCost = yearlyEnergyCost.toDouble(),
+            yearlyDepreciation = yearlyDepreciation.toDouble(),
+            yearlyMaintenanceCost = yearlyMaintenance.toDouble(),
+            totalYearlyCost = total.toDouble()
+        )
     }
 
     override suspend fun addImageFileName(carId: Long, imageFileName: String) {

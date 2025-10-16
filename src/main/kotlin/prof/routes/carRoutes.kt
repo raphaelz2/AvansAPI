@@ -8,6 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.utils.io.*
 import prof.Requests.CarSearchFilterRequest
+import prof.Requests.CostOfOwnerShipRequest
 import prof.Requests.CreateCarRequest
 import prof.Requests.UpdateCarRequest
 import prof.db.CarRepository
@@ -91,6 +92,12 @@ fun Route.carRoutes(carRepository: CarRepository) {
             val car = call.receive<UpdateCarRequest>()
             carRepository.update(car)
             call.respond(HttpStatusCode.Accepted)
+        }
+
+        post("/costofownership") {
+            val calculation = call.receive<CostOfOwnerShipRequest>()
+            val result = carRepository.calculateCostOfOwnerShip(calculation)
+            call.respond(HttpStatusCode.OK, result)
         }
 
         // Delete a car by ID
