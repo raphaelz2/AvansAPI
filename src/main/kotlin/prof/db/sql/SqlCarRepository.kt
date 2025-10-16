@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import prof.Requests.CarSearchFilterRequest
 import prof.Requests.CostOfOwnerShipRequest
 import prof.Requests.CreateCarRequest
+import prof.Requests.CreateReservationRequest
 import prof.Requests.UpdateCarRequest
 import prof.db.CarRepository
 import prof.entities.Car
@@ -15,6 +16,7 @@ import prof.enums.CarAttributeEnum
 import prof.enums.EntityEnum
 import prof.utils.LocationUtils
 import prof.enums.PowerSourceTypeEnum
+import prof.enums.ReservationStatusEnum
 import prof.responses.GetCostOfOwnerShipResponse
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -40,6 +42,22 @@ class SqlCarRepository(
             modifiedAt = LocalDateTime.parse(row[Cars.modifiedAt]),
             attributes = attributes
         )
+    }
+
+    override suspend fun canBookOnTime(entity: CreateReservationRequest): Boolean = transaction {
+        val start = entity.startTime.toString()
+        val end = entity.endTime.toString()
+
+        val overlappingReservations = Reservations.selectAll()
+            .where {
+                (Reservations.startTime lessEq end) and
+                        (Reservations.endTime greaterEq start) and
+                        (Reservations.carId eq entity.carId) and
+                        (Reservations.status eq ReservationStatusEnum.CONFIRMED.value)
+            }
+            .count()
+
+        overlappingReservations == 0L
     }
 
     override suspend fun search(filter: CarSearchFilterRequest): List<Car> = transaction {

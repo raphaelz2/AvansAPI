@@ -10,6 +10,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import prof.Requests.CarSearchFilterRequest
 import prof.Requests.CostOfOwnerShipRequest
 import prof.Requests.CreateCarRequest
+import prof.Requests.CreateReservationRequest
 import prof.Requests.UpdateCarRequest
 import prof.db.sql.Cars
 import prof.entities.Car
@@ -123,6 +124,10 @@ object FakeCarRepository : CarRepository {
                 attributes = entityAttributeRepo.findByEntityBlocking(EntityEnum.CAR.name, car.id).toMutableList()
             }
         }
+
+    override suspend fun canBookOnTime(entity: CreateReservationRequest): Boolean {
+        return true
+    }
 
     override suspend fun create(entity: CreateCarRequest): Car {
         currentId++

@@ -60,4 +60,9 @@ dependencies {
     testImplementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("io.ktor:ktor-server-auth:${ktor_version}")
+
+    //implementation voor de DeleteUnitTest
+    implementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 }

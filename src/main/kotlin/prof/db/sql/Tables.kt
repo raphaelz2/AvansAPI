@@ -16,12 +16,6 @@ object Users : Table("users") {
 
 object Cars : Table("cars") {
     val id = long("id").autoIncrement()
-    val make = varchar("make", 100)
-    val model = varchar("model", 100)
-    val price = float("price")
-    val pickupLocation = varchar("pickup_location", 200)
-    val category = varchar("category", 40)
-    val powerSourceType = varchar("power_source_type", 20)
     val createdAt = varchar("created_at", 40)
     val modifiedAt = varchar("modified_at", 40)
     override val primaryKey = PrimaryKey(id)
