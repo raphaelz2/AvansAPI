@@ -1,5 +1,6 @@
 package prof.db
 
+import prof.Requests.CarSearchFilterRequest
 import prof.Requests.CostOfOwnerShipRequest
 import prof.Requests.CreateCarRequest
 import prof.Requests.UpdateCarRequest
@@ -14,4 +15,5 @@ interface CarRepository {
     suspend fun update(entity: UpdateCarRequest)
     suspend fun calculateCostOfOwnerShip(entity: CostOfOwnerShipRequest): GetCostOfOwnerShipResponse
     suspend fun delete(id: Long): Boolean
+    suspend fun search(filter: CarSearchFilterRequest): List<Car>
 }
