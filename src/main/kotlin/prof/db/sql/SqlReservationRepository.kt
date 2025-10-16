@@ -37,8 +37,23 @@ class SqlReservationRepository : ReservationRepository {
         Reservations.selectAll().map { rowToReservation(it) }
     }
 
+    override suspend fun canBookOnTime(entity: CreateReservationRequest): Boolean = transaction {
+        val start = entity.startTime.toString()
+        val end = entity.endTime.toString()
+
+        val overlappingReservations = Reservations.selectAll()
+            .where {
+                (Reservations.startTime lessEq end) and
+                (Reservations.endTime greaterEq start) and
+                (Reservations.carId eq entity.carId) and
+                (Reservations.status eq ReservationStatusEnum.CONFIRMED.value)
+            }
+            .count()
+
+        overlappingReservations == 0L
+    }
+
     override suspend fun create(entity: CreateReservationRequest): Reservation = transaction {
-        println("entity: $entity")
         val newId: Long = Reservations.insert { st ->
             st[startTime] = entity.startTime.toString()
             st[endTime] = entity.endTime.toString()
