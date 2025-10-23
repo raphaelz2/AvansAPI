@@ -20,7 +20,7 @@ class PasswordTest {
 
     @Test
     fun `verify should return true for correct password`() {
-        val plain = "mySecret123"
+        val plain = "securePassword123"
         val hash = Passwords.hash(plain)
 
         // Controleer dat het wachtwoord correct wordt geverifieerd

@@ -235,6 +235,10 @@ class ReservationTest {
             return findAllResult
         }
 
+        override suspend fun canBookOnTime(entity: CreateReservationRequest): Boolean {
+            TODO("Not yet implemented")
+        }
+
         override suspend fun findById(id: Long): Reservation? {
             findByIdCalled = true
             return findByIdResult

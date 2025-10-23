@@ -37,7 +37,7 @@ fun Route.carRoutes(carRepository: CarRepository) {
         }
 
         // Create a new car
-        post {
+        post("/create") {
             val car = call.receive<CreateCarRequest>()
             val createdCar = carRepository.create(car)
             call.respond(HttpStatusCode.Created, createdCar.toGetCarResponse())
