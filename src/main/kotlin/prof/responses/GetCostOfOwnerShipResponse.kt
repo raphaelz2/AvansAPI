@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GetCostOfOwnerShipResponse(
-    val carId: Long,
+    val carId: Long? = null,
     val category: String,
     val powerSourceType: String,
     val kilometersPerYear: Int,

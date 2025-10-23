@@ -1,17 +1,6 @@
 package prof
 
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import kotlinx.datetime.LocalDateTime
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import prof.entities.Car
-import prof.entities.LoginRequest
-import prof.entities.Reservation
-import prof.enums.PowerSourceTypeEnum
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class ApplicationTest {
 

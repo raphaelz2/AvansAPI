@@ -5,7 +5,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.selectAll
 import prof.Requests.CreateUserRequest
 import prof.db.sql.SqlUserRepository
-import prof.db.sql.Users
+import prof.db.sql.migrations.Users
 
 class UserSeeder(
     private val userRepository: SqlUserRepository = SqlUserRepository()
@@ -14,24 +14,18 @@ class UserSeeder(
         if (Users.selectAll().empty()) {
             println("🌱 UserSeeder gestart...")
 
-            val now = Clock.System.now().toLocalDateTime(kotlinx.datetime.TimeZone.UTC)
-
             val users = listOf(
                 CreateUserRequest(
                     firstName = "Admin",
                     lastName = "User",
                     password = "admin123",
                     email = "admin@example.com",
-                    createdAt = now,
-                    modifiedAt = now
                 ),
                 CreateUserRequest(
                     firstName = "Test",
                     lastName = "Gebruiker",
                     password = "test123",
                     email = "test@example.com",
-                    createdAt = now,
-                    modifiedAt = now
                 )
             )
 

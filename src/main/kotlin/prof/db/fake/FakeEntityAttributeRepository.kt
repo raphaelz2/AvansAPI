@@ -1,21 +1,22 @@
-package prof.db
+package prof.db.fake
 
-import prof.entities.EntityAttribute
+import prof.db.EntityAttributeRepositoryInterface
+import prof.entities.EntityAttributeDTO
 
-object FakeEntityAttributeRepository : EntityAttributeRepository {
+object FakeEntityAttributeRepository : EntityAttributeRepositoryInterface {
     private var currentId: Long = 0L
-    private val attributes = mutableListOf<EntityAttribute>()
+    private val attributes = mutableListOf<EntityAttributeDTO>()
 
-    override suspend fun findById(id: Long): EntityAttribute? =
+    override suspend fun findById(id: Long): EntityAttributeDTO? =
         attributes.find { it.id == id }
 
-    override suspend fun findByEntity(entity: String, entityId: Long): List<EntityAttribute> =
+    override suspend fun findByEntity(entity: String, entityId: Long): List<EntityAttributeDTO> =
         attributes.filter { it.entity.name == entity && it.entityId == entityId }
 
-    override suspend fun create(attribute: EntityAttribute): EntityAttribute =
+    override suspend fun create(attribute: EntityAttributeDTO): EntityAttributeDTO =
         createBlocking(attribute)
 
-    override suspend fun update(attribute: EntityAttribute): Int {
+    override suspend fun update(attribute: EntityAttributeDTO): Int {
         val index = attributes.indexOfFirst { it.id == attribute.id }
         return if (index != -1) {
             attributes[index].apply {
@@ -33,12 +34,12 @@ object FakeEntityAttributeRepository : EntityAttributeRepository {
         attributes.removeIf { it.id == id }
 
     // ---- Blocking helpers ----
-    fun findByEntityBlocking(entity: String, entityId: Long): List<EntityAttribute> =
+    fun findByEntityBlocking(entity: String, entityId: Long?): List<EntityAttributeDTO> =
         attributes.filter { it.entity.name == entity && it.entityId == entityId }
 
-    fun createBlocking(attr: EntityAttribute): EntityAttribute {
+    fun createBlocking(attr: EntityAttributeDTO): EntityAttributeDTO {
         currentId++
-        val newAttr = EntityAttribute(
+        val newAttr = EntityAttributeDTO(
             id = currentId,
             entity = attr.entity,
             entityId = attr.entityId,
@@ -51,7 +52,7 @@ object FakeEntityAttributeRepository : EntityAttributeRepository {
         return newAttr
     }
 
-    fun updateBlocking(attr: EntityAttribute) {
+    fun updateBlocking(attr: EntityAttributeDTO) {
         val index = attributes.indexOfFirst { it.id == attr.id }
         if (index != -1) {
             attributes[index].apply {
@@ -64,6 +65,6 @@ object FakeEntityAttributeRepository : EntityAttributeRepository {
         }
     }
 
-    fun deleteBlocking(id: Long): Boolean =
+    fun deleteBlocking(id: Long?): Boolean =
         attributes.removeIf { it.id == id }
 }

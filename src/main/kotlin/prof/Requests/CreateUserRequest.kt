@@ -9,6 +9,4 @@ data class CreateUserRequest(
     val lastName: String,
     val password: String,
     val email: String,
-    val createdAt: LocalDateTime,
-    val modifiedAt: LocalDateTime,
 )

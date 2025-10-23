@@ -1,6 +1,6 @@
 package prof.routes
 
-import prof.db.UserRepository
+import prof.db.UserRepositoryInterface
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
@@ -10,7 +10,7 @@ import prof.Requests.UpdateUserRequest
 import prof.mapperExtentions.toGetUserResponse
 import prof.mapperExtentions.toGetUserResponseList
 
-fun Route.userRoutes(userRepository: UserRepository) {
+fun Route.userRoutes(userRepository: UserRepositoryInterface) {
     route("/users") {
         // Get all users
         get {

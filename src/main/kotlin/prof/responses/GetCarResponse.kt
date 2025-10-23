@@ -6,7 +6,7 @@ import prof.enums.PowerSourceTypeEnum
 
 @Serializable
 data class GetCarResponse(
-    val id: Long,
+    val id: Long? = null,
     val make: String,
     val model: String? = null,
     val price: Float? = null,
@@ -39,6 +39,6 @@ data class GetCarResponse(
     val costPerKilometer: String?,
     val deposit: String? = null,
     val imageFileNames: List<String>,
-    val createdAt: LocalDateTime,
-    val modifiedAt: LocalDateTime,
+    val createdAt: String? = null,
+    val modifiedAt: String? = null,
 )

@@ -5,7 +5,7 @@ import kotlinx.datetime.LocalDateTime
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import prof.Requests.CreateUserRequest
-import prof.db.FakeUserRepository
+import prof.db.fake.FakeUserRepository
 
 class DeleteUserTest {
 
@@ -18,8 +18,6 @@ class DeleteUserTest {
                 lastName = "User",
                 password = "delete123",
                 email = "delete.user@example.com",
-                createdAt = LocalDateTime(2025, 10, 15, 12, 0, 0),
-                modifiedAt = LocalDateTime(2025, 10, 15, 12, 0, 0)
             )
         )
 

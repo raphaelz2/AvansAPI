@@ -4,7 +4,7 @@ import kotlinx.datetime.LocalDateTime
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import prof.Requests.CreateUserRequest
-import prof.db.FakeUserRepository
+import prof.db.fake.FakeUserRepository
 import prof.security.Passwords
 
 
@@ -16,8 +16,6 @@ class UserTest {
             lastName = "User",
             password = "secret",
             email = "admin@example.com",
-            createdAt = LocalDateTime(2025, 1, 1, 12, 0, 0),
-            modifiedAt = LocalDateTime(2025, 1, 1, 12, 0, 0)
         )
 
         val user = FakeUserRepository.create(req)

@@ -18,6 +18,4 @@ class UpdateReservationRequest(
     val startMileage: Int,
     val endMileage: Int,
     @Contextual val costPerKm: BigDecimal,
-    val createdAt: LocalDateTime,
-    val modifiedAt: LocalDateTime,
 )

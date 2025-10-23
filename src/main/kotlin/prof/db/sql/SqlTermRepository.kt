@@ -18,6 +18,8 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.max
+import prof.db.sql.migrations.Terms
+import prof.db.sql.migrations.Users
 
 class SqlTermRepository : TermRepositoryInterface {
     private fun rowToTerm(row: ResultRow) = TermDTO(

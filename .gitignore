@@ -42,3 +42,7 @@ out/
 
 ### KOTLIN ###
 .kotlin
+
+### Images ###
+.uploads/
+uploads/

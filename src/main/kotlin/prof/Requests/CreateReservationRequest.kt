@@ -15,6 +15,4 @@ data class CreateReservationRequest(
     val startMileage: Int,
     val endMileage: Int,
     val costPerKm: String,
-    val createdAt: LocalDateTime,
-    val modifiedAt: LocalDateTime
 )

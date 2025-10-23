@@ -1,41 +1,40 @@
 package prof.db.sql
 
-import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import prof.db.EntityAttributeRepository
-import prof.entities.EntityAttribute
+import prof.db.EntityAttributeRepositoryInterface
+import prof.db.sql.migrations.EntityAttributes
+import prof.entities.EntityAttributeDTO
 import prof.enums.EntityEnum
 
-class SqlEntityAttributeRepository : EntityAttributeRepository {
+class SqlEntityAttributeRepository : EntityAttributeRepositoryInterface {
 
-    private fun rowToEntityAttribute(row: ResultRow): EntityAttribute {
-        return EntityAttribute(
+    private fun rowToEntityAttribute(row: ResultRow): EntityAttributeDTO {
+        return EntityAttributeDTO(
             id = row[EntityAttributes.id],
             entity = EntityEnum.valueOf(row[EntityAttributes.entity]),
             entityId = row[EntityAttributes.entityId],
             attribute = row[EntityAttributes.attribute],
             value = row[EntityAttributes.value],
-            createdAt = LocalDateTime.parse(row[EntityAttributes.createdAt]),
-            modifiedAt = LocalDateTime.parse(row[EntityAttributes.modifiedAt])
+            createdAt = row[EntityAttributes.createdAt],
+            modifiedAt = row[EntityAttributes.modifiedAt]
         )
     }
 
-    // ---- Suspend functies voor interface ----
-    override suspend fun findById(id: Long): EntityAttribute? = transaction {
+    override suspend fun findById(id: Long): EntityAttributeDTO? = transaction {
         EntityAttributes.selectAll().where { EntityAttributes.id eq id }
             .singleOrNull()
             ?.let { rowToEntityAttribute(it) }
     }
 
-    override suspend fun findByEntity(entity: String, entityId: Long): List<EntityAttribute> = transaction {
+    override suspend fun findByEntity(entity: String, entityId: Long): List<EntityAttributeDTO> = transaction {
         EntityAttributes.selectAll()
             .where { (EntityAttributes.entity eq entity) and (EntityAttributes.entityId eq entityId) }
             .map { rowToEntityAttribute(it) }
     }
 
-    override suspend fun create(attribute: EntityAttribute): EntityAttribute = transaction {
+    override suspend fun create(attribute: EntityAttributeDTO): EntityAttributeDTO = transaction {
         val newId: Long = EntityAttributes.insert { st ->
             st[entity] = attribute.entity.name
             st[entityId] = attribute.entityId
@@ -51,7 +50,7 @@ class SqlEntityAttributeRepository : EntityAttributeRepository {
             .let { rowToEntityAttribute(it) }
     }
 
-    override suspend fun update(attribute: EntityAttribute): Int = transaction {
+    override suspend fun update(attribute: EntityAttributeDTO): Int = transaction {
         EntityAttributes.update({ EntityAttributes.id eq attribute.id }) { st ->
             st[entity] = attribute.entity.name
             st[entityId] = attribute.entityId
@@ -65,14 +64,13 @@ class SqlEntityAttributeRepository : EntityAttributeRepository {
         EntityAttributes.deleteWhere { EntityAttributes.id eq id } > 0
     }
 
-    // ---- Helpers voor interne (blocking) calls ----
-    fun findByEntityBlocking(entity: String, entityId: Long): List<EntityAttribute> = transaction {
+    fun findByEntityBlocking(entity: String, entityId: Long): List<EntityAttributeDTO> = transaction {
         EntityAttributes.selectAll()
             .where { (EntityAttributes.entity eq entity) and (EntityAttributes.entityId eq entityId) }
             .map { rowToEntityAttribute(it) }
     }
 
-    fun createBlocking(attribute: EntityAttribute): EntityAttribute = transaction {
+    fun createBlocking(attribute: EntityAttributeDTO): EntityAttributeDTO = transaction {
         val newId: Long = EntityAttributes.insert { st ->
             st[entity] = attribute.entity.name
             st[entityId] = attribute.entityId
@@ -88,7 +86,7 @@ class SqlEntityAttributeRepository : EntityAttributeRepository {
             .let { rowToEntityAttribute(it) }
     }
 
-    fun updateBlocking(attribute: EntityAttribute) = transaction {
+    fun updateBlocking(attribute: EntityAttributeDTO) = transaction {
         EntityAttributes.update({ EntityAttributes.id eq attribute.id }) { st ->
             st[entity] = attribute.entity.name
             st[entityId] = attribute.entityId

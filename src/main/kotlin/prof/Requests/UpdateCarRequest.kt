@@ -39,6 +39,4 @@ class UpdateCarRequest(
     val costPerKilometer: Float?,
     val deposit: String?,
     val imageFileNames: MutableList<String> = mutableListOf(),
-    val createdAt: LocalDateTime,
-    val modifiedAt: LocalDateTime
 )

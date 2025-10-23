@@ -1,13 +1,11 @@
 package prof.db.sql.seeders
 
-import kotlinx.datetime.Clock
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import prof.Requests.CreateTermRequest
 import prof.db.sql.SqlTermRepository
-import prof.db.sql.Terms
-import prof.db.sql.Users
+import prof.db.sql.migrations.Terms
+import prof.db.sql.migrations.Users
 
 class TermSeeder (
     private val termRepository: SqlTermRepository = SqlTermRepository()

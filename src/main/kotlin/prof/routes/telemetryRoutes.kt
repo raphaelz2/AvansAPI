@@ -6,12 +6,11 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.auth.jwt.*
 import kotlinx.datetime.LocalDateTime
 import prof.Requests.CreateTelemetryRequest
-import prof.db.TelemetryRepository
+import prof.db.TelemetryRepositoryInterface
 
-fun Application.telemetryRoutes(repo: TelemetryRepository) {
+fun Application.telemetryRoutes(repo: TelemetryRepositoryInterface) {
     routing {
         authenticate("auth-jwt") {
             route("/telemetry") {

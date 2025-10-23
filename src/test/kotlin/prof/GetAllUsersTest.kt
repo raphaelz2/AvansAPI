@@ -4,7 +4,7 @@ package prof
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import prof.db.FakeUserRepository
+import prof.db.fake.FakeUserRepository
 
 class GetAllUsersTest {
 

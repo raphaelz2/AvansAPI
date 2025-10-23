@@ -1,18 +1,18 @@
-package prof.db
+package prof.db.fake
 
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import prof.Requests.CreateUserRequest
 import prof.Requests.UpdateUserRequest
-import prof.entities.User
+import prof.db.UserRepositoryInterface
+import prof.entities.UserDTO
+import prof.security.Passwords
 
-object FakeUserRepository : UserRepository {
+object FakeUserRepository : UserRepositoryInterface {
     private var currentId: Long = 0L
-    private val users = mutableListOf<User>()
-    // Seed the fake UserRepository with some dummy data
+    private val users = mutableListOf<UserDTO>()
     init {
         runBlocking {
             create(
@@ -21,8 +21,6 @@ object FakeUserRepository : UserRepository {
                     "",
                     "Admin1",
                     "admin@avans.nl",
-                    LocalDateTime(2021, 3, 27, 2, 16, 20),
-                    LocalDateTime(2021, 3, 27, 2, 16, 20)
                 )
             )
             create(
@@ -31,8 +29,6 @@ object FakeUserRepository : UserRepository {
                     "Jong",
                     "Anne1",
                     "anne@avans.nl",
-                    LocalDateTime(2021, 3, 27, 2, 16, 20),
-                    LocalDateTime(2021, 3, 27, 2, 16, 20)
                 )
             )
             create(
@@ -41,33 +37,31 @@ object FakeUserRepository : UserRepository {
                     "Koster",
                     "Henk1",
                     "henk@avans.nl",
-                    LocalDateTime(2021, 3, 27, 2, 16, 20),
-                    LocalDateTime(2021, 3, 27, 2, 16, 20)
                 )
             )
         }
     }
 
     // Find a user by their email
-    override suspend fun findByEmail(email: String): User? = users.find { it.email == email }
+    override suspend fun findByEmail(email: String): UserDTO? = users.find { it.email == email }
 
     // Find a user by their first name
-    override suspend fun findByFirstname(firstName: String): User? = users.find { it.firstName == firstName }
+    override suspend fun findByFirstname(firstName: String): UserDTO? = users.find { it.firstName == firstName }
 
     // Find all users
-    override suspend fun findAll(): List<User> = users.toList()
+    override suspend fun findAll(): List<UserDTO> = users.toList()
 
     // Find a user by their ID
-    override suspend fun findById(id: Long): User? = users.find { it.id == id }
+    override suspend fun findById(id: Long): UserDTO? = users.find { it.id == id }
 
 // Create a new user
-    override suspend fun create(entity: CreateUserRequest): User {
-        val hashed = prof.security.Passwords.hash(entity.password)
+    override suspend fun create(entity: CreateUserRequest): UserDTO {
+        val hashed = Passwords.hash(entity.password)
         currentId++ // Increment the ID for the new user
-        val now = Clock.System.now().toLocalDateTime(TimeZone.of("Europe/Amsterdam")) // Get current time in Amsterdam
+        val now = Clock.System.now().toLocalDateTime(TimeZone.Companion.of("Europe/Amsterdam")) // Get current time in Amsterdam
 
         // Create a new prof.security.User instance, assigning values from the request entity to each property
-        val newUser = User(
+        val newUser = UserDTO(
             id = currentId,
             firstName = entity.firstName,
             lastName = entity.lastName,
@@ -76,7 +70,7 @@ object FakeUserRepository : UserRepository {
             createdAt = now,
             modifiedAt = now
         )
-    // ZORG DAT DIT HIER STAAT, IN DE FUNCTIE
+
     println("Gehashed wachtwoord opgeslagen: ${newUser.password}")
         users.add(newUser) // Add the new user to the list
         return newUser // Return the newly created user
@@ -92,8 +86,6 @@ object FakeUserRepository : UserRepository {
             firstName = entity.firstName
             lastName = entity.lastName
             email = entity.email
-            modifiedAt = entity.modifiedAt
-            createdAt = entity.createdAt
         }
     }
 

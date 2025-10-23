@@ -6,16 +6,15 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.transactions.transaction
 import prof.Requests.CreateTelemetryRequest
-import prof.db.TelemetryRepository
-import prof.entities.DrivingTelemetryLog
+import prof.db.TelemetryRepositoryInterface
+import prof.db.sql.migrations.TelemetryLogs
+import prof.entities.DrivingTelemetryLogDTO
 
-class SqlTelemetryRepository : TelemetryRepository {
+class SqlTelemetryRepository : TelemetryRepositoryInterface {
 
-    private fun rowToLog(row: ResultRow) = DrivingTelemetryLog(
+    private fun rowToLog(row: ResultRow) = DrivingTelemetryLogDTO(
         tripId = row[TelemetryLogs.tripId],
         userId = row[TelemetryLogs.userId],
         carId = row[TelemetryLogs.carId],
@@ -34,7 +33,7 @@ class SqlTelemetryRepository : TelemetryRepository {
         req: CreateTelemetryRequest,
         defaultUserId: Long,
         defaultCarId: Long
-    ): DrivingTelemetryLog = transaction {
+    ): DrivingTelemetryLogDTO = transaction {
         val now = Clock.System.now().toLocalDateTime(TimeZone.UTC)
 
         // NOTE: TelemetryLogs is a plain Table, so use: insert { } get TelemetryLogs.tripId
@@ -60,11 +59,11 @@ class SqlTelemetryRepository : TelemetryRepository {
             .let(::rowToLog)
     }
 
-    override suspend fun findAll(): List<DrivingTelemetryLog> = transaction {
+    override suspend fun findAll(): List<DrivingTelemetryLogDTO> = transaction {
         TelemetryLogs.selectAll().map(::rowToLog)
     }
 
-    override suspend fun findByTripId(tripId: Long): DrivingTelemetryLog? = transaction {
+    override suspend fun findByTripId(tripId: Long): DrivingTelemetryLogDTO? = transaction {
         TelemetryLogs
             .selectAll()
             .where { TelemetryLogs.tripId eq tripId }
@@ -76,14 +75,14 @@ class SqlTelemetryRepository : TelemetryRepository {
         TelemetryLogs.deleteWhere { TelemetryLogs.tripId eq tripId } > 0
     }
 
-    override suspend fun findForUser(userId: Long): List<DrivingTelemetryLog> = transaction {
+    override suspend fun findForUser(userId: Long): List<DrivingTelemetryLogDTO> = transaction {
         TelemetryLogs
             .selectAll()
             .where { TelemetryLogs.userId eq userId }
             .map(::rowToLog)
     }
 
-    override suspend fun findForCar(carId: Long): List<DrivingTelemetryLog> = transaction {
+    override suspend fun findForCar(carId: Long): List<DrivingTelemetryLogDTO> = transaction {
         TelemetryLogs
             .selectAll()
             .where { TelemetryLogs.carId eq carId }
@@ -94,7 +93,7 @@ class SqlTelemetryRepository : TelemetryRepository {
         carId: Long,
         start: LocalDateTime,
         end: LocalDateTime
-    ): List<DrivingTelemetryLog> = transaction {
+    ): List<DrivingTelemetryLogDTO> = transaction {
         val s = start.toString()
         val e = end.toString()
         TelemetryLogs

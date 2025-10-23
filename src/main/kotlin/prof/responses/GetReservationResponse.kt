@@ -5,11 +5,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class GetReservationResponse(
-    val id: Long,
+    val id: Long? = null,
     val startTime: LocalDateTime,
     val endTime: LocalDateTime,
     val userId: Long,
     val carId: Long,
-    val createdAt: LocalDateTime,
-    val modifiedAt: LocalDateTime,
+    val createdAt: LocalDateTime? = null,
+    val modifiedAt: LocalDateTime? = null,
 )

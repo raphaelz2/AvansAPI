@@ -4,37 +4,37 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class CarAttributeEnum {
-    MAKE,                       // Merk
-    MODEL,                      // Niet aanwezig in NL lijst, kan optioneel
-    PRICE,                      // Catalogusprijs
-    PICKUP_LOCATION,            // Niet nodig voor basisinfo
-    CATEGORY,                    // Voertuigsoort
-    POWER_SOURCE_TYPE,           // Brandstof, elektrisch, hybride
-    COLOR,                       // Eerste kleur
-    ENGINE_TYPE,                 // Niet expliciet aanwezig
-    ENGINE_POWER,                // Vermogen massarijklaar
-    FUEL_TYPE,                   // Brandstof type
-    TRANSMISSION,                // Niet aanwezig in NL lijst
-    INTERIOR_TYPE,               // Niet aanwezig in NL lijst
-    INTERIOR_COLOR,              // Niet aanwezig in NL lijst
-    EXTERIOR_TYPE,               // Carrosserie
-    EXTERIOR_FINISH,             // Niet aanwezig
-    WHEEL_SIZE,                  // Niet aanwezig
-    WHEEL_TYPE,                  // Niet aanwezig
-    SEATS,                       // Aantal zitplaatsen
-    DOORS,                       // Aantal deuren
-    MODEL_YEAR,                  // Jaar eerste toelating
-    LICENSE_PLATE,               // Kenteken
-    MILEAGE,                     // Niet aanwezig
-    VIN_NUMBER,                  // Niet aanwezig
-    TRADE_NAME,                  // Handelsbenaming
-    BPM,                         // Bruto BPM
-    CURB_WEIGHT,                 // Massa ledig voertuig
-    MAX_WEIGHT,                  // Toegestane max massa
-    FIRST_REGISTRATION_DATE,     // Datum eerste toelating
-    COST_PER_KILOMETER,          // Kosten per kilometer
-    BOOKING_COST,                // Bookings kosten
-    DEPOSIT,                     // Borg
+    MAKE,
+    MODEL,
+    PRICE,
+    PICKUP_LOCATION,
+    CATEGORY,
+    POWER_SOURCE_TYPE,
+    COLOR,
+    ENGINE_TYPE,
+    ENGINE_POWER,
+    FUEL_TYPE,
+    TRANSMISSION,
+    INTERIOR_TYPE,
+    INTERIOR_COLOR,
+    EXTERIOR_TYPE,
+    EXTERIOR_FINISH,
+    WHEEL_SIZE,
+    WHEEL_TYPE,
+    SEATS,
+    DOORS,
+    MODEL_YEAR,
+    LICENSE_PLATE,
+    MILEAGE,
+    VIN_NUMBER,
+    TRADE_NAME,
+    BPM,
+    CURB_WEIGHT,
+    MAX_WEIGHT,
+    FIRST_REGISTRATION_DATE,
+    COST_PER_KILOMETER,
+    BOOKING_COST,
+    DEPOSIT,
 }
 
 val carFieldToEnumMap = mapOf(

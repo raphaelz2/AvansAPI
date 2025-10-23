@@ -1,6 +1,8 @@
 package prof.db.sql
 
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -9,9 +11,12 @@ import prof.Requests.CostOfOwnerShipRequest
 import prof.Requests.CreateCarRequest
 import prof.Requests.CreateReservationRequest
 import prof.Requests.UpdateCarRequest
-import prof.db.CarRepository
-import prof.entities.Car
-import prof.entities.EntityAttribute
+import prof.db.CarRepositoryInterface
+import prof.db.sql.migrations.CarImages
+import prof.db.sql.migrations.Cars
+import prof.db.sql.migrations.Reservations
+import prof.entities.CarDTO
+import prof.entities.EntityAttributeDTO
 import prof.enums.CarAttributeEnum
 import prof.enums.EntityEnum
 import prof.utils.LocationUtils
@@ -23,9 +28,9 @@ import java.math.RoundingMode
 
 class SqlCarRepository(
     private val entityAttributeRepo: SqlEntityAttributeRepository
-) : CarRepository {
+) : CarRepositoryInterface {
 
-    private fun rowToCar(row: ResultRow): Car {
+    private fun rowToCar(row: ResultRow): CarDTO {
         val id = row[Cars.id]
 
         val images = CarImages.selectAll()
@@ -35,11 +40,11 @@ class SqlCarRepository(
 
         val attributes = entityAttributeRepo.findByEntityBlocking(EntityEnum.CAR.name, id).toMutableList()
 
-        return Car(
+        return CarDTO(
             id = id,
             imageFileNames = images,
-            createdAt = LocalDateTime.parse(row[Cars.createdAt]),
-            modifiedAt = LocalDateTime.parse(row[Cars.modifiedAt]),
+            createdAt = row[Cars.createdAt],
+            modifiedAt = row[Cars.modifiedAt],
             attributes = attributes
         )
     }
@@ -60,7 +65,7 @@ class SqlCarRepository(
         overlappingReservations == 0L
     }
 
-    override suspend fun search(filter: CarSearchFilterRequest): List<Car> = transaction {
+    override suspend fun search(filter: CarSearchFilterRequest): List<CarDTO> = transaction {
         val allCars = Cars.selectAll().map { rowToCar(it) }
 
         var filteredCars = allCars
@@ -259,30 +264,23 @@ class SqlCarRepository(
         filteredCars
     }
 
-    override suspend fun findById(id: Long): Car? = transaction {
+    override suspend fun findById(id: Long): CarDTO? = transaction {
         Cars.selectAll()
             .where { Cars.id eq id }
             .singleOrNull()
             ?.let { rowToCar(it) }
     }
 
-    override suspend fun findAll(): List<Car> = transaction {
+    override suspend fun findAll(): List<CarDTO> = transaction {
         Cars.selectAll()
             .map { rowToCar(it) }
     }
 
-    override suspend fun create(entity: CreateCarRequest): Car = transaction {
+    override suspend fun create(entity: CreateCarRequest): CarDTO = transaction {
         val newId: Long = Cars.insert { st ->
-            st[createdAt] = entity.createdAt.toString()
-            st[modifiedAt] = entity.modifiedAt.toString()
+            st[createdAt] = Clock.System.now().toString()
+            st[modifiedAt] = Clock.System.now().toString()
         } get Cars.id
-
-        entity.imageFileNames.forEach { fn ->
-            CarImages.insert { st ->
-                st[carId] = newId
-                st[filename] = fn
-            }
-        }
 
         entityAttributesFromRequest(newId, entity).forEach { attr ->
             entityAttributeRepo.createBlocking(attr)
@@ -305,7 +303,7 @@ class SqlCarRepository(
 
     override suspend fun update(entity: UpdateCarRequest) = transaction {
         Cars.update({ Cars.id eq entity.id }) { st ->
-            st[modifiedAt] = entity.modifiedAt.toString()
+            st[modifiedAt] = Clock.System.now().toString()
         }
 
         if (entity.imageFileNames.isNotEmpty()) {
@@ -395,13 +393,12 @@ class SqlCarRepository(
         Cars.deleteWhere { Cars.id eq id } > 0
     }
 
-    // --- Helpers voor CreateCarRequest ---
-    private fun entityAttributesFromRequest(carId: Long, req: CreateCarRequest): List<EntityAttribute> {
-        val now = req.createdAt
-        val attrs = mutableListOf<EntityAttribute>()
+    private fun entityAttributesFromRequest(carId: Long, req: CreateCarRequest): List<EntityAttributeDTO> {
+        val now = Clock.System.now().toString()
+        val attrs = mutableListOf<EntityAttributeDTO>()
 
         fun add(enum: CarAttributeEnum, value: Any?) {
-            if (value != null) attrs += EntityAttribute(
+            if (value != null) attrs += EntityAttributeDTO(
                 0,
                 EntityEnum.CAR,
                 carId,
@@ -447,13 +444,12 @@ class SqlCarRepository(
         return attrs
     }
 
-    // --- Nieuwe dynamische mapping voor UpdateCarRequest ---
-    private fun entityAttributesFromRequest(carId: Long, req: UpdateCarRequest): List<EntityAttribute> {
-        val now = req.modifiedAt
-        val attrs = mutableListOf<EntityAttribute>()
+    private fun entityAttributesFromRequest(carId: Long, req: UpdateCarRequest): List<EntityAttributeDTO> {
+        val now = Clock.System.now().toString()
+        val attrs = mutableListOf<EntityAttributeDTO>()
 
         fun add(enum: CarAttributeEnum, value: Any?) {
-            if (value != null) attrs += EntityAttribute(
+            if (value != null) attrs += EntityAttributeDTO(
                 0,
                 EntityEnum.CAR,
                 carId,
@@ -497,5 +493,29 @@ class SqlCarRepository(
         add(CarAttributeEnum.BOOKING_COST, req.bookingCost)
 
         return attrs
+    }
+
+    override suspend fun addImages(carId: Long, fileNames: List<String>): Boolean = transaction {
+        val carExists = Cars.selectAll()
+            .where { Cars.id eq carId }
+            .count() > 0
+
+        if (!carExists) {
+            return@transaction false
+        }
+
+        fileNames.forEach { fileName ->
+            CarImages.insert { st ->
+                st[CarImages.carId] = carId
+                st[filename] = fileName
+            }
+        }
+
+        val now = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
+        Cars.update({ Cars.id eq carId }) {
+            it[modifiedAt] = now
+        }
+
+        true
     }
 }

@@ -9,6 +9,9 @@ class MainSeeder {
         runBlocking {
             UserSeeder().run()
             TermSeeder().run()
+            CarSeeder().run()
+            CarImageSeeder().run()
+            ReservationSeeder().run()
         }
 
         println("✅ Seeding compleet.")

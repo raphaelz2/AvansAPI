@@ -5,10 +5,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class GetUserResponse(
-    val id: Long,
+    val id: Long? = null,
     val firstName: String,
     val lastName: String,
     val email: String,
-    val createdAt: LocalDateTime,
-    val modifiedAt: LocalDateTime,
+    val createdAt: LocalDateTime? = null,
+    val modifiedAt: LocalDateTime? = null,
 )

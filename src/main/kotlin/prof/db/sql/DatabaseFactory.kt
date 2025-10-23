@@ -7,6 +7,13 @@ import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import prof.db.sql.migrations.CarImages
+import prof.db.sql.migrations.Cars
+import prof.db.sql.migrations.EntityAttributes
+import prof.db.sql.migrations.Reservations
+import prof.db.sql.migrations.TelemetryLogs
+import prof.db.sql.migrations.Terms
+import prof.db.sql.migrations.Users
 import java.io.File
 
 object DatabaseFactory {
@@ -38,7 +45,7 @@ object DatabaseFactory {
         Database.connect(dataSource)
 
         transaction {
-            SchemaUtils.create(Users, Cars, Reservations, CarImages, TelemetryLogs, Terms)
+            SchemaUtils.create(Users, Cars, EntityAttributes, Reservations, CarImages, TelemetryLogs, Terms)
 
             //seeders
             prof.db.sql.seeders.MainSeeder().run()

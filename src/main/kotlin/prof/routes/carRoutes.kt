@@ -6,18 +6,18 @@ import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.utils.io.*
 import prof.Requests.CostOfOwnerShipRequest
 import prof.Requests.CarSearchFilterRequest
 import prof.Requests.CreateCarRequest
 import prof.Requests.UpdateCarRequest
-import prof.db.CarRepository
+import prof.db.CarRepositoryInterface
 import prof.enums.PowerSourceTypeEnum
 import prof.mapperExtentions.toGetCarResponse
 import prof.mapperExtentions.toGetCarsResponse
 import java.io.File
+import java.util.UUID
 
-fun Route.carRoutes(carRepository: CarRepository) {
+fun Route.carRoutes(carRepository: CarRepositoryInterface) {
     route("/cars") {
         // Get all cars
         get {
@@ -121,33 +121,60 @@ fun Route.carRoutes(carRepository: CarRepository) {
             extensions("jpg", "png", "jpeg", "gif")
         }
 
-        post("/{id}/images") {
-            val id = call.parameters["id"]?.toLongOrNull()
-                ?: return@post call.respond(HttpStatusCode.BadRequest, "Invalid car ID")
-            val car = carRepository.findById(id)
-                ?: return@post call.respond(HttpStatusCode.NotFound, "Car not found")
-            var imageFileName = ""
+        post("/car-image/{carId}") {
+            val carId = call.parameters["carId"]?.toLongOrNull()
 
-            val multipartData = call.receiveMultipart()
-            multipartData.forEachPart { part ->
+            if (carId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid car ID")
+                return@post
+            }
+
+            val existingCar = carRepository.findById(carId)
+            if (existingCar == null) {
+                call.respond(HttpStatusCode.NotFound, "Car not found")
+                return@post
+            }
+
+            val multipart = call.receiveMultipart()
+            val uploadedFileNames = mutableListOf<String>()
+
+            val uploadDir = File("uploads/cars")
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs()
+            }
+
+            multipart.forEachPart { part ->
                 when (part) {
                     is PartData.FileItem -> {
-                        imageFileName = part.originalFileName ?: "NoImageName"
-                        val fileBytes = part.provider().toByteArray()
-                        File(getImageUploadPath(imageFileName)).writeBytes(fileBytes) // Save the file
+                        val fileName = part.originalFileName ?: UUID.randomUUID().toString()
+                        val fileExtension = fileName.substringAfterLast(".", "jpg")
+                        val uniqueFileName = "${UUID.randomUUID()}.$fileExtension"
+
+                        val file = File(uploadDir, uniqueFileName)
+                        part.streamProvider().use { input ->
+                            file.outputStream().buffered().use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+
+                        uploadedFileNames.add(uniqueFileName)
                     }
                     else -> {}
                 }
-                part.dispose() // Dispose of the part after processing
+                part.dispose()
             }
-            carRepository.addImageFileName(id, imageFileName)
 
-            // Respond with success message
-            call.respond(
-                HttpStatusCode.OK,
-                "Image $imageFileName uploaded and associated with car ID $id"
-            )
+            if (uploadedFileNames.isEmpty()) {
+                call.respond(HttpStatusCode.BadRequest, "No images uploaded")
+                return@post
+            }
+
+            carRepository.addImages(carId, uploadedFileNames)
+
+            val updatedCar = carRepository.findById(carId)
+            call.respond(HttpStatusCode.OK, updatedCar!!.toGetCarResponse())
         }
+
     }
 }
 private fun getImageUploadPath(imageFile: String) = "uploads/$imageFile"

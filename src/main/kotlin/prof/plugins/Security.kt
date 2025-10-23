@@ -6,13 +6,15 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.http.content.files
+import io.ktor.server.http.content.static
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import prof.AuthenticatedUser
-import prof.db.FakeUserRepository
+import prof.db.fake.FakeUserRepository
 import prof.db.sql.SqlUserRepository
-import prof.entities.LoginRequest
+import prof.entities.LoginRequestDTO
 import java.util.*
 
 fun Application.configureSecurity() {
@@ -49,9 +51,16 @@ fun Application.configureSecurity() {
         }
     }
 
+
+
     routing {
+        //image
+        static("/uploads") {
+            files("uploads")
+        }
+
         post("/login") {
-            val request = call.receive<LoginRequest>()
+            val request = call.receive<LoginRequestDTO>()
             val user = userRepo.findByEmail(request.email)
 //            if (user == null || user.password != request.password) {
 //                call.respond(HttpStatusCode.Unauthorized, "Invalid credentials")

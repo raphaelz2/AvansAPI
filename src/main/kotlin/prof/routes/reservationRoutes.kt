@@ -5,11 +5,11 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import prof.Requests.CreateReservationRequest
-import prof.db.ReservationRepository
+import prof.db.ReservationRepositoryInterface
 import prof.mapperExtentions.toGetReservationResponse
 import prof.mapperExtentions.toGetReservationResponseList
 
-fun Route.reservationRoutes(reservationRepository: ReservationRepository) {
+fun Route.reservationRoutes(reservationRepository: ReservationRepositoryInterface) {
     route("/reservations") {
         // Get all reservations
         get {
@@ -50,9 +50,9 @@ fun Route.reservationRoutes(reservationRepository: ReservationRepository) {
 
             val deleted = reservationRepository.delete(id)
             if (deleted) {
-                call.respond(HttpStatusCode.NoContent) // Successfully deleted
+                call.respond(HttpStatusCode.NoContent)
             } else {
-                call.respond(HttpStatusCode.NotFound) // Reservation not found
+                call.respond(HttpStatusCode.NotFound)
             }
         }
     }

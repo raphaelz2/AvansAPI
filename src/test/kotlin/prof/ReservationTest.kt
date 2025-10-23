@@ -1,7 +1,6 @@
 package prof
 
 import io.ktor.client.request.*
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
@@ -12,9 +11,9 @@ import kotlinx.serialization.json.Json
 import org.junit.Test
 import kotlin.test.*
 import prof.routes.reservationRoutes
-import prof.db.ReservationRepository
+import prof.db.ReservationRepositoryInterface
 import prof.Requests.CreateReservationRequest
-import prof.entities.Reservation
+import prof.entities.ReservationDTO
 import kotlinx.datetime.LocalDateTime
 import prof.Requests.UpdateReservationRequest
 import prof.enums.ReservationStatusEnum
@@ -22,7 +21,7 @@ import java.math.BigDecimal
 
 class ReservationTest {
 
-    private fun ApplicationTestBuilder.setupTestApplication(repository: ReservationRepository) {
+    private fun ApplicationTestBuilder.setupTestApplication(repository: ReservationRepositoryInterface) {
         application {
             install(ContentNegotiation) {
                 json(Json {
@@ -42,7 +41,7 @@ class ReservationTest {
     fun `GET all reservations returns OK with reservation list`() = testApplication {
         val mockRepository = MockReservationRepository(
             findAllResult = listOf(
-                Reservation(
+                ReservationDTO(
                     id = 1,
                     startTime = LocalDateTime(2025, 10, 15, 8, 0),
                     endTime = LocalDateTime(2025, 10, 15, 12, 0),
@@ -56,7 +55,7 @@ class ReservationTest {
                     createdAt = LocalDateTime(2025, 10, 15, 8, 0),
                     modifiedAt = LocalDateTime(2025, 10, 15, 12, 0)
                 ),
-                Reservation(
+                ReservationDTO(
                     id = 2,
                     startTime = LocalDateTime(2025, 10, 16, 9, 0),
                     endTime = LocalDateTime(2025, 10, 16, 13, 0),
@@ -84,7 +83,7 @@ class ReservationTest {
     @Test
     fun `GET reservation by id returns OK when reservation exists`() = testApplication {
         val mockRepository = MockReservationRepository(
-            findByIdResult =  Reservation(
+            findByIdResult =  ReservationDTO(
                 id = 2,
                 startTime = LocalDateTime(2025, 10, 16, 9, 0),
                 endTime = LocalDateTime(2025, 10, 16, 13, 0),
@@ -133,7 +132,7 @@ class ReservationTest {
     @Test
     fun `POST creates reservation and returns Created`() = testApplication {
         val mockRepository = MockReservationRepository(
-            createResult =  Reservation(
+            createResult =  ReservationDTO(
                 id = 2,
                 startTime = LocalDateTime(2025, 10, 16, 9, 0),
                 endTime = LocalDateTime(2025, 10, 16, 13, 0),
@@ -211,15 +210,15 @@ class ReservationTest {
     }
 
     private class MockReservationRepository(
-        private val findAllResult: List<Reservation> = emptyList(),
-        private val findByIdResult: Reservation? = null,
-        private val createResult: Reservation? = null,
+        private val findAllResult: List<ReservationDTO> = emptyList(),
+        private val findByIdResult: ReservationDTO? = null,
+        private val createResult: ReservationDTO? = null,
         private val deleteResult: Boolean = false,
         private val updateResult: Unit = Unit,
-        private val findReservationsForUserResult: List<Reservation> = emptyList(),
-        private val findReservationsForCarResult: List<Reservation> = emptyList(),
-        private val findReservationsForCarAndTimeframeResult: List<Reservation> = emptyList()
-    ) : ReservationRepository {
+        private val findReservationsForUserResult: List<ReservationDTO> = emptyList(),
+        private val findReservationsForCarResult: List<ReservationDTO> = emptyList(),
+        private val findReservationsForCarAndTimeframeResult: List<ReservationDTO> = emptyList()
+    ) : ReservationRepositoryInterface {
         var findAllCalled = false
         var findByIdCalled = false
         var createCalled = false
@@ -230,7 +229,7 @@ class ReservationTest {
         var findReservationsForCarAndTimeframeCalled = false
 
 
-        override suspend fun findAll(): List<Reservation> {
+        override suspend fun findAll(): List<ReservationDTO> {
             findAllCalled = true
             return findAllResult
         }
@@ -239,12 +238,12 @@ class ReservationTest {
             TODO("Not yet implemented")
         }
 
-        override suspend fun findById(id: Long): Reservation? {
+        override suspend fun findById(id: Long): ReservationDTO? {
             findByIdCalled = true
             return findByIdResult
         }
 
-        override suspend fun create(entity: CreateReservationRequest): Reservation {
+        override suspend fun create(entity: CreateReservationRequest): ReservationDTO {
             createCalled = true
             return createResult!!
         }
@@ -259,12 +258,12 @@ class ReservationTest {
             return deleteResult
         }
 
-        override suspend fun findReservationsForUser(userId: Long): List<Reservation> {
+        override suspend fun findReservationsForUser(userId: Long): List<ReservationDTO> {
             findReservationsForUserCalled = true
             return findReservationsForUserResult
         }
 
-        override suspend fun findReservationsForCar(carId: Long): List<Reservation> {
+        override suspend fun findReservationsForCar(carId: Long): List<ReservationDTO> {
             findReservationsForCarCalled = true
             return findReservationsForCarResult
         }
@@ -273,7 +272,7 @@ class ReservationTest {
             carId: Long,
             startTime: LocalDateTime,
             endTime: LocalDateTime
-        ): List<Reservation> {
+        ): List<ReservationDTO> {
             findReservationsForCarAndTimeframeCalled = true
             return findReservationsForCarAndTimeframeResult
         }

@@ -1,15 +1,12 @@
 package prof.entities
 
-import kotlinx.datetime.LocalDateTime
-import prof.enums.PowerSourceTypeEnum
-
-class Car(
-    id: Long,
+class CarDTO(
+    var id: Long,
     var imageFileNames: MutableList<String> = mutableListOf(),
-    createdAt: LocalDateTime,
-    modifiedAt: LocalDateTime,
-    var attributes: MutableList<EntityAttribute> = mutableListOf()
-) : BaseEntity(id, createdAt, modifiedAt) {
+    var createdAt: String? = null,
+    var modifiedAt: String? = null,
+    var attributes: MutableList<EntityAttributeDTO> = mutableListOf()
+){
 
     fun getAttribute(attr: String): String? =
         attributes.find { it.attribute == attr }?.value

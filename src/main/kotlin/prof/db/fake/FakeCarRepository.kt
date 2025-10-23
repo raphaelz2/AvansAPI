@@ -1,20 +1,19 @@
-package prof.db
+package prof.db.fake
 
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import prof.Requests.CarSearchFilterRequest
 import prof.Requests.CostOfOwnerShipRequest
 import prof.Requests.CreateCarRequest
 import prof.Requests.CreateReservationRequest
 import prof.Requests.UpdateCarRequest
-import prof.db.sql.Cars
-import prof.entities.Car
-import prof.entities.EntityAttribute
+import prof.db.CarRepositoryInterface
+import prof.db.fake.FakeEntityAttributeRepository
+import prof.entities.CarDTO
+import prof.entities.EntityAttributeDTO
 import prof.enums.CarAttributeEnum
 import prof.enums.EntityEnum
 import prof.enums.PowerSourceTypeEnum
@@ -24,10 +23,10 @@ import prof.responses.GetCostOfOwnerShipResponse
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-object FakeCarRepository : CarRepository {
+object FakeCarRepository : CarRepositoryInterface {
 
     private var currentId: Long = 0L
-    private val cars = mutableListOf<Car>()
+    private val cars = mutableListOf<CarDTO>()
     private val entityAttributeRepo = FakeEntityAttributeRepository
 
     init {
@@ -62,9 +61,6 @@ object FakeCarRepository : CarRepository {
                     curbWeight = 1250,
                     maxWeight = 1800,
                     firstRegistrationDate = "2020-03-15",
-                    imageFileNames = mutableListOf(),
-                    createdAt = LocalDateTime(2024, 3, 27, 2, 16, 20),
-                    modifiedAt = LocalDateTime(2024, 3, 27, 2, 16, 20),
                     bookingCost = "25.00",
                     costPerKilometer = 0.29,
                     deposit = "100",
@@ -101,9 +97,6 @@ object FakeCarRepository : CarRepository {
                     curbWeight = 1750,
                     maxWeight = 2200,
                     firstRegistrationDate = "2023-02-01",
-                    imageFileNames = mutableListOf(),
-                    createdAt = LocalDateTime(2024, 3, 27, 2, 16, 20),
-                    modifiedAt = LocalDateTime(2024, 3, 27, 2, 16, 20),
                     bookingCost = "25.00",
                     costPerKilometer = 0.29,
                     deposit = "100",
@@ -112,13 +105,13 @@ object FakeCarRepository : CarRepository {
         }
     }
 
-    override suspend fun findById(id: Long): Car? {
+    override suspend fun findById(id: Long): CarDTO? {
         val car = cars.find { it.id == id } ?: return null
         car.attributes = entityAttributeRepo.findByEntityBlocking(EntityEnum.CAR.name, car.id).toMutableList()
         return car
     }
 
-    override suspend fun findAll(): List<Car> =
+    override suspend fun findAll(): List<CarDTO> =
         cars.map { car ->
             car.apply {
                 attributes = entityAttributeRepo.findByEntityBlocking(EntityEnum.CAR.name, car.id).toMutableList()
@@ -129,23 +122,21 @@ object FakeCarRepository : CarRepository {
         return true
     }
 
-    override suspend fun create(entity: CreateCarRequest): Car {
+    override suspend fun create(entity: CreateCarRequest): CarDTO {
         currentId++
-        val now = Clock.System.now().toLocalDateTime(TimeZone.of("Europe/Amsterdam"))
+        val now = Clock.System.now().toLocalDateTime(TimeZone.of("Europe/Amsterdam")).toString()
 
-        val car = Car(
+        val car = CarDTO(
             id = currentId,
-            imageFileNames = entity.imageFileNames.toMutableList(),
             createdAt = now,
             modifiedAt = now
         )
         cars.add(car)
 
-        val attrs = mutableListOf<EntityAttribute>()
+        val attrs = mutableListOf<EntityAttributeDTO>()
 
-        // Automatisch alle niet-nulle velden toevoegen
         fun addAttr(enum: CarAttributeEnum, value: Any?) {
-            if (value != null) attrs += EntityAttribute(
+            if (value != null) attrs += EntityAttributeDTO(
                 id = 0,
                 entity = EntityEnum.CAR,
                 entityId = car.id,
@@ -198,7 +189,7 @@ object FakeCarRepository : CarRepository {
         // analoog aan create(), zelfde veldafhandeling
     }
 
-    override suspend fun search(filter: CarSearchFilterRequest): List<Car> = transaction {
+    override suspend fun search(filter: CarSearchFilterRequest): List<CarDTO> = transaction {
         val allCars = cars.map { car ->
             car.apply {
                 attributes = entityAttributeRepo.findByEntityBlocking(EntityEnum.CAR.name, car.id).toMutableList()
@@ -399,6 +390,13 @@ object FakeCarRepository : CarRepository {
         }
 
         filteredCars
+    }
+
+    override suspend fun addImages(
+        carId: Long,
+        fileNames: List<String>
+    ): Boolean {
+        return true
     }
 
     override suspend fun calculateCostOfOwnerShip(entity: CostOfOwnerShipRequest): GetCostOfOwnerShipResponse {

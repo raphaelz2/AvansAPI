@@ -2,7 +2,6 @@ package prof.db;
 
 import prof.Requests.CreateTermRequest
 import prof.Requests.UpdateTermRequest
-import prof.db.sql.Terms
 import prof.entities.TermDTO;
 
 interface TermRepositoryInterface {

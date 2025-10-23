@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.datetime.LocalDateTime
 
 @Serializable
-data class DrivingTelemetryLog(
+data class DrivingTelemetryLogDTO(
     val tripId: Long,
     val userId: Long,
     val carId: Long,

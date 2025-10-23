@@ -1,19 +1,21 @@
 package prof.db.sql
 
+import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import prof.Requests.CreateReservationRequest
 import prof.Requests.UpdateReservationRequest
-import prof.db.ReservationRepository
-import prof.entities.Reservation
+import prof.db.ReservationRepositoryInterface
+import prof.db.sql.migrations.Reservations
+import prof.entities.ReservationDTO
 import prof.enums.ReservationStatusEnum
 import java.math.BigDecimal
 
-class SqlReservationRepository : ReservationRepository {
+class SqlReservationRepository : ReservationRepositoryInterface {
 
-    private fun rowToReservation(row: ResultRow) = Reservation(
+    private fun rowToReservation(row: ResultRow) = ReservationDTO(
         id = row[Reservations.id],
         startTime = LocalDateTime.parse(row[Reservations.startTime]),
         endTime = LocalDateTime.parse(row[Reservations.endTime]),
@@ -29,11 +31,11 @@ class SqlReservationRepository : ReservationRepository {
         modifiedAt = LocalDateTime.parse(row[Reservations.modifiedAt])
     )
 
-    override suspend fun findById(id: Long): Reservation? = transaction {
+    override suspend fun findById(id: Long): ReservationDTO? = transaction {
         Reservations.selectAll().where { Reservations.id eq id }.singleOrNull()?.let { rowToReservation(it) }
     }
 
-    override suspend fun findAll(): List<Reservation> = transaction {
+    override suspend fun findAll(): List<ReservationDTO> = transaction {
         Reservations.selectAll().map { rowToReservation(it) }
     }
 
@@ -53,7 +55,7 @@ class SqlReservationRepository : ReservationRepository {
         overlappingReservations == 0L
     }
 
-    override suspend fun create(entity: CreateReservationRequest): Reservation = transaction {
+    override suspend fun create(entity: CreateReservationRequest): ReservationDTO = transaction {
         val newId: Long = Reservations.insert { st ->
             st[startTime] = entity.startTime.toString()
             st[endTime] = entity.endTime.toString()
@@ -64,8 +66,8 @@ class SqlReservationRepository : ReservationRepository {
             st[startMileage] = entity.startMileage
             st[endMileage] = entity.endMileage
             st[costPerKm] = BigDecimal(entity.costPerKm)
-            st[createdAt] = entity.createdAt.toString()
-            st[modifiedAt] = entity.modifiedAt.toString()
+            st[createdAt] = Clock.System.now().toString()
+            st[modifiedAt] = Clock.System.now().toString()
         } get Reservations.id
         Reservations.selectAll().where { Reservations.id eq newId }.single().let { rowToReservation(it) }
     }
@@ -82,8 +84,7 @@ class SqlReservationRepository : ReservationRepository {
                 st[startMileage] = entity.startMileage
                 st[endMileage] = entity.endMileage
                 st[costPerKm] = entity.costPerKm
-                st[createdAt] = entity.createdAt.toString()
-                st[modifiedAt] = entity.modifiedAt.toString()
+                st[modifiedAt] = Clock.System.now().toString()
             }
         }
     }
@@ -92,11 +93,11 @@ class SqlReservationRepository : ReservationRepository {
         Reservations.deleteWhere { Reservations.id eq id } > 0
     }
 
-    override suspend fun findReservationsForUser(userId: Long): List<Reservation> = transaction {
+    override suspend fun findReservationsForUser(userId: Long): List<ReservationDTO> = transaction {
         Reservations.selectAll().where { Reservations.userId eq userId }.map { rowToReservation(it) }
     }
 
-    override suspend fun findReservationsForCar(carId: Long): List<Reservation> = transaction {
+    override suspend fun findReservationsForCar(carId: Long): List<ReservationDTO> = transaction {
         Reservations.selectAll().where { Reservations.carId eq carId }.map { rowToReservation(it) }
     }
 
@@ -104,7 +105,7 @@ class SqlReservationRepository : ReservationRepository {
         carId: Long,
         startTime: LocalDateTime,
         endTime: LocalDateTime
-    ): List<Reservation> = transaction {
+    ): List<ReservationDTO> = transaction {
         val s = startTime.toString()
         val e = endTime.toString()
         Reservations

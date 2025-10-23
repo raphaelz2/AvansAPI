@@ -4,8 +4,8 @@ import kotlinx.datetime.LocalDateTime
 import prof.enums.ReservationStatusEnum
 import java.math.BigDecimal
 
-class Reservation(
-    id: Long,
+class ReservationDTO(
+    var id: Long? = null,
     val startTime: LocalDateTime,
     val endTime: LocalDateTime,
     val userId: Long,
@@ -15,6 +15,6 @@ class Reservation(
     val startMileage: Int,
     val endMileage: Int,
     val costPerKm: BigDecimal,
-    createdAt: LocalDateTime,
-    modifiedAt: LocalDateTime,
-) : BaseEntity(id, createdAt, modifiedAt)
+    var createdAt: LocalDateTime? = null,
+    var modifiedAt: LocalDateTime? = null,
+)

@@ -4,12 +4,12 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import prof.db.FakeCarRepository
-import prof.db.FakeEntityAttributeRepository
-import prof.db.FakeReservationRepository
-import prof.db.FakeTelemetryRepository
-import prof.db.FakeUserRepository
-import prof.db.TelemetryRepository
+import prof.db.fake.FakeCarRepository
+import prof.db.fake.FakeEntityAttributeRepository
+import prof.db.fake.FakeReservationRepository
+import prof.db.fake.FakeTelemetryRepository
+import prof.db.fake.FakeUserRepository
+import prof.db.TelemetryRepositoryInterface
 import prof.db.TermRepositoryInterface
 import prof.db.sql.SqlCarRepository
 import prof.db.sql.SqlReservationRepository
@@ -31,7 +31,7 @@ fun Application.configureRouting() {
     val resRepo = if (useFake) FakeReservationRepository else SqlReservationRepository()
     val entRepo = if (useFake) FakeEntityAttributeRepository else SqlEntityAttributeRepository()
     val carRepo = if (useFake) FakeCarRepository else SqlCarRepository(entityAttributeRepo = entRepo as SqlEntityAttributeRepository)
-    val telemetryRepo: TelemetryRepository = if (useFake) FakeTelemetryRepository else SqlTelemetryRepository()
+    val telemetryRepo: TelemetryRepositoryInterface = if (useFake) FakeTelemetryRepository else SqlTelemetryRepository()
     val termRepository: TermRepositoryInterface = SqlTermRepository()
 
     if (!useFake) {
