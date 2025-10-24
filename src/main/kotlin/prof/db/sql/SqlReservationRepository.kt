@@ -2,6 +2,8 @@ package prof.db.sql
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -66,8 +68,8 @@ class SqlReservationRepository : ReservationRepositoryInterface {
             st[startMileage] = entity.startMileage
             st[endMileage] = entity.endMileage
             st[costPerKm] = BigDecimal(entity.costPerKm)
-            st[createdAt] = Clock.System.now().toString()
-            st[modifiedAt] = Clock.System.now().toString()
+            st[createdAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
+            st[modifiedAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
         } get Reservations.id
         Reservations.selectAll().where { Reservations.id eq newId }.single().let { rowToReservation(it) }
     }
@@ -84,7 +86,7 @@ class SqlReservationRepository : ReservationRepositoryInterface {
                 st[startMileage] = entity.startMileage
                 st[endMileage] = entity.endMileage
                 st[costPerKm] = entity.costPerKm
-                st[modifiedAt] = Clock.System.now().toString()
+                st[modifiedAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
             }
         }
     }

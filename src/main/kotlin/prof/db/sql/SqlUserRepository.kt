@@ -2,6 +2,8 @@ package prof.db.sql
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -42,8 +44,8 @@ class SqlUserRepository : UserRepositoryInterface {
             st[lastName] = entity.lastName
             st[password] = hashed
             st[email] = entity.email
-            st[createdAt] = Clock.System.now().toString()
-            st[modifiedAt] = Clock.System.now().toString()
+            st[createdAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
+            st[modifiedAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
         } get Users.id
         Users.selectAll().where { Users.id eq newId }.single().let { rowToUser(it) }
     }
@@ -54,7 +56,7 @@ class SqlUserRepository : UserRepositoryInterface {
                 st[firstName] = entity.firstName
                 st[lastName] = entity.lastName
                 st[email] = entity.email
-                st[modifiedAt] = Clock.System.now().toString()
+                st[modifiedAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
             }
         }
     }

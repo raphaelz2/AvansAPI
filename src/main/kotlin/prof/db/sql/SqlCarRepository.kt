@@ -278,8 +278,8 @@ class SqlCarRepository(
 
     override suspend fun create(entity: CreateCarRequest): CarDTO = transaction {
         val newId: Long = Cars.insert { st ->
-            st[createdAt] = Clock.System.now().toString()
-            st[modifiedAt] = Clock.System.now().toString()
+            st[createdAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
+            st[modifiedAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
         } get Cars.id
 
         entityAttributesFromRequest(newId, entity).forEach { attr ->
@@ -303,7 +303,7 @@ class SqlCarRepository(
 
     override suspend fun update(entity: UpdateCarRequest) = transaction {
         Cars.update({ Cars.id eq entity.id }) { st ->
-            st[modifiedAt] = Clock.System.now().toString()
+            st[modifiedAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
         }
 
         if (entity.imageFileNames.isNotEmpty()) {
