@@ -1,6 +1,7 @@
 package prof
 
 import io.ktor.client.request.*
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
@@ -158,18 +159,18 @@ class ReservationTest {
                     "startTime": "2025-10-15T08:00:00",
                     "endTime": "2025-10-15T12:00:00",
                     "userId": 1,
-                     "carId": 1,
-                     "termId": 1,
+                    "carId": 1,
+                    "termId": 1,
                     "status": "PENDING",
                     "startMileage": 15230,
                     "endMileage": 15300,
-                    "costPerKm": "0.25",
-                    "createdAt": "2025-10-09T10:00:00",
-                     "modifiedAt": "2025-10-09T10:00:00"
+                    "costPerKm": "0.25"
                 }
                 """
             )
         }.apply {
+            println("Response status: $status")
+            println("Response body: ${bodyAsText()}")
             assertEquals(HttpStatusCode.Created, status)
             assertTrue(mockRepository.createCalled)
         }

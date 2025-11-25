@@ -15,6 +15,7 @@ import prof.AuthenticatedUser
 import prof.db.fake.FakeUserRepository
 import prof.db.sql.SqlUserRepository
 import prof.entities.LoginRequestDTO
+import prof.responses.LoginResponse
 import java.util.*
 
 fun Application.configureSecurity() {
@@ -72,15 +73,24 @@ fun Application.configureSecurity() {
                 return@post
             }
 
+            val expirationTime = System.currentTimeMillis() + (30L * 24 * 60 * 60 * 1000)
+
             val token = JWT.create()
                 .withAudience(jwtAudience)
                 .withIssuer(jwtDomain)
                 .withClaim("email", user.email)
                 .withClaim("id", user.id)
-                .withExpiresAt(Date(System.currentTimeMillis() + 600_000))
+                .withExpiresAt(Date(expirationTime))
                 .sign(Algorithm.HMAC256(secret))
-
-            call.respond(hashMapOf("token" to token))
+            println("Test test ${user.id}")
+            call.respond(
+                LoginResponse(
+                    token = token,
+                    email = user.email,
+                    name = "${user.firstName} ${user.lastName}",
+                    id = user.id!!
+                )
+            )
         }
 
         authenticate("auth-jwt") {
