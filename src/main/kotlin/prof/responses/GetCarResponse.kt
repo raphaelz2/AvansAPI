@@ -6,6 +6,7 @@ import prof.enums.PowerSourceTypeEnum
 
 @Serializable
 data class GetCarResponse(
+    val userId: Long,
     val id: Long? = null,
     val make: String,
     val model: String? = null,

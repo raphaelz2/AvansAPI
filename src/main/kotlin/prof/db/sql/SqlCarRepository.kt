@@ -42,6 +42,7 @@ class SqlCarRepository(
 
         return CarDTO(
             id = id,
+            userId = row[Cars.userId],
             imageFileNames = images,
             createdAt = row[Cars.createdAt],
             modifiedAt = row[Cars.modifiedAt],
@@ -280,6 +281,7 @@ class SqlCarRepository(
         val newId: Long = Cars.insert { st ->
             st[createdAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
             st[modifiedAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
+            st[userId] = entity.userId
         } get Cars.id
 
         entityAttributesFromRequest(newId, entity).forEach { attr ->

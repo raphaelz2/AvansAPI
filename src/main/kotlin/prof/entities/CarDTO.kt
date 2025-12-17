@@ -3,6 +3,7 @@ package prof.entities
 class CarDTO(
     var id: Long,
     var imageFileNames: MutableList<String> = mutableListOf(),
+    var userId: Long,
     var createdAt: String? = null,
     var modifiedAt: String? = null,
     var attributes: MutableList<EntityAttributeDTO> = mutableListOf()

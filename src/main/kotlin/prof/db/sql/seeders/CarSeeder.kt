@@ -17,6 +17,7 @@ class CarSeeder(
             println("🚗🚗🚗 CarSeeder start...")
             val cars = listOf(
                 CreateCarRequest(
+                    userId = 1,
                     make = "Tesla",
                     model = "Model 3",
                     price = 48990f,
@@ -50,6 +51,7 @@ class CarSeeder(
                     deposit = "500"
                 ),
                 CreateCarRequest(
+                    userId = 1,
                     make = "Volkswagen",
                     model = "Golf",
                     price = 28990f,
@@ -83,6 +85,7 @@ class CarSeeder(
                     deposit = "400"
                 ),
                 CreateCarRequest(
+                    userId = 1,
                     make = "BMW",
                     model = "i4",
                     price = 65900f,
@@ -116,6 +119,7 @@ class CarSeeder(
                     deposit = "600"
                 ),
                 CreateCarRequest(
+                    userId = 1,
                     make = "Toyota",
                     model = "Corolla Hybrid",
                     price = 29900f,
@@ -149,6 +153,7 @@ class CarSeeder(
                     deposit = "400"
                 ),
                 CreateCarRequest(
+                    userId = 1,
                     make = "Mercedes-Benz",
                     model = "EQS 450+",
                     price = 119900f,
@@ -182,6 +187,7 @@ class CarSeeder(
                     deposit = "1000"
                 ),
                 CreateCarRequest(
+                    userId = 1,
                     make = "Ford",
                     model = "Focus",
                     price = 24900f,
@@ -215,6 +221,7 @@ class CarSeeder(
                     deposit = "300"
                 ),
                 CreateCarRequest(
+                    userId = 1,
                     make = "Volvo",
                     model = "XC60 Recharge",
                     price = 68900f,
@@ -248,6 +255,7 @@ class CarSeeder(
                     deposit = "700"
                 ),
                 CreateCarRequest(
+                    userId = 1,
                     make = "Audi",
                     model = "A3 Sportback",
                     price = 34900f,
@@ -281,6 +289,7 @@ class CarSeeder(
                     deposit = "450"
                 ),
                 CreateCarRequest(
+                    userId = 1,
                     make = "Peugeot",
                     model = "208",
                     price = 21900f,
@@ -314,6 +323,7 @@ class CarSeeder(
                     deposit = "300"
                 ),
                 CreateCarRequest(
+                    userId = 1,
                     make = "Hyundai",
                     model = "Kona Electric",
                     price = 37900f,

@@ -45,7 +45,8 @@ fun CarDTO.toGetCarResponse(baseUrl: String = "http://localhost:8080"): GetCarRe
         "$baseUrl/uploads/cars/$fileName"
     },
     createdAt = createdAt,
-    modifiedAt = modifiedAt
+    modifiedAt = modifiedAt,
+    userId = userId
 )
 
 fun List<CarDTO>.toGetCarResponseList(baseUrl: String = "http://localhost:8080"): List<GetCarResponse> =

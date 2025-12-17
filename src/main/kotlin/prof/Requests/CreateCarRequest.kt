@@ -5,7 +5,8 @@ import kotlinx.serialization.Serializable
 import prof.enums.PowerSourceTypeEnum
 
 @Serializable
-class CreateCarRequest(
+data class CreateCarRequest(
+    val userId: Long,
     val make: String,
     val model: String?,
     val price: Float?,

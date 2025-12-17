@@ -2,6 +2,8 @@ package prof.routes
 
 import io.ktor.http.*
 import io.ktor.http.content.*
+import io.ktor.server.auth.UserIdPrincipal
+import io.ktor.server.auth.principal
 import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -38,10 +40,18 @@ fun Route.carRoutes(carRepository: CarRepositoryInterface) {
 
         // Create a new car
         post("/create") {
-            val car = call.receive<CreateCarRequest>()
-            val createdCar = carRepository.create(car)
+            val principal = call.principal<UserIdPrincipal>()
+            val userId = principal?.name?.toLongOrNull()
+                ?: return@post call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
+
+            val carRequest = call.receive<CreateCarRequest>()
+
+            val carWithUser = carRequest.copy(userId = userId)
+
+            val createdCar = carRepository.create(carWithUser)
             call.respond(HttpStatusCode.Created, createdCar.toGetCarResponse())
         }
+
 
         get("/search") {
             val filter = CarSearchFilterRequest(

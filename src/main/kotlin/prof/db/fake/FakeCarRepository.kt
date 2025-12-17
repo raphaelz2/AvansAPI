@@ -33,6 +33,7 @@ object FakeCarRepository : CarRepositoryInterface {
         runBlocking {
             create(
                 CreateCarRequest(
+                    userId = 1,
                     make = "Toyota",
                     model = "Corolla",
                     price = 20000.0f,
@@ -69,6 +70,7 @@ object FakeCarRepository : CarRepositoryInterface {
 
             create(
                 CreateCarRequest(
+                    userId = 1,
                     make = "Tesla",
                     model = "Model 3",
                     price = 45000.0f,
@@ -129,7 +131,8 @@ object FakeCarRepository : CarRepositoryInterface {
         val car = CarDTO(
             id = currentId,
             createdAt = now,
-            modifiedAt = now
+            modifiedAt = now,
+            userId = 1
         )
         cars.add(car)
 
