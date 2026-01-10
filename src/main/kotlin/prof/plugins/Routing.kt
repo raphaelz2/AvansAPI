@@ -23,6 +23,7 @@ import prof.routes.carRoutes
 import prof.routes.reservationRoutes
 import prof.routes.telemetryRoutes
 import prof.routes.userRoutes
+import prof.routes.userRegistrationRoutes
 
 fun Application.configureRouting() {
     val useFake = environment.config.propertyOrNull("app.useFake")?.getString()?.toBoolean() ?: true
@@ -43,8 +44,13 @@ fun Application.configureRouting() {
             call.respondText("Welcome to the car rental api! (mode=" + (if (useFake) "FAKE" else "SQL") + ")")
         }
 
+        // Public registration (no JWT required)
+        // This enables the Android app to create new accounts without an existing token.
+        userRegistrationRoutes(userRepo)
+
         authenticate("auth-jwt") {
-            userRoutes(userRepo)
+            // All other user management endpoints remain protected.
+            userRoutes(userRepo, includeCreate = false)
             reservationRoutes(resRepo)
             carRoutes(carRepo)
             telemetryRoutes(telemetryRepo)

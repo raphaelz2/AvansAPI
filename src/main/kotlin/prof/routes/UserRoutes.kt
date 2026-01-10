@@ -10,7 +10,13 @@ import prof.Requests.UpdateUserRequest
 import prof.mapperExtentions.toGetUserResponse
 import prof.mapperExtentions.toGetUserResponseList
 
-fun Route.userRoutes(userRepository: UserRepositoryInterface) {
+/**
+ * Authenticated user management routes.
+ *
+ * Note: In many apps, registration (POST /users) should be public. To support that,
+ * you can set [includeCreate] to false here and expose a separate public route.
+ */
+fun Route.userRoutes(userRepository: UserRepositoryInterface, includeCreate: Boolean = true) {
     route("/users") {
         // Get all users
         get {
@@ -29,11 +35,24 @@ fun Route.userRoutes(userRepository: UserRepositoryInterface) {
             call.respond(HttpStatusCode.OK, user.toGetUserResponse())
         }
 
-        // Create a new user
-        post {
-            val user = call.receive<CreateUserRequest>()
-            val createdUser = userRepository.create(user)
-            call.respond(HttpStatusCode.Created, createdUser.toGetUserResponse())
+        if (includeCreate) {
+            // Create a new user
+            post {
+                val user = call.receive<CreateUserRequest>()
+
+                // Basic validation + conflict check
+                if (user.email.isBlank() || user.password.isBlank() || user.firstName.isBlank()) {
+                    return@post call.respond(HttpStatusCode.BadRequest, "Missing required fields")
+                }
+
+                val existing = userRepository.findByEmail(user.email)
+                if (existing != null) {
+                    return@post call.respond(HttpStatusCode.Conflict, "Email already exists")
+                }
+
+                val createdUser = userRepository.create(user)
+                call.respond(HttpStatusCode.Created, createdUser.toGetUserResponse())
+            }
         }
 
         // Update an existing user by ID
@@ -56,6 +75,31 @@ fun Route.userRoutes(userRepository: UserRepositoryInterface) {
             } else {
                 call.respond(HttpStatusCode.NotFound) // User not found
             }
+        }
+    }
+}
+
+/**
+ * Public registration route.
+ *
+ * Exposes POST /users without JWT auth so mobile apps can register.
+ */
+fun Route.userRegistrationRoutes(userRepository: UserRepositoryInterface) {
+    route("/users") {
+        post {
+            val user = call.receive<CreateUserRequest>()
+
+            if (user.email.isBlank() || user.password.isBlank() || user.firstName.isBlank()) {
+                return@post call.respond(HttpStatusCode.BadRequest, "Missing required fields")
+            }
+
+            val existing = userRepository.findByEmail(user.email)
+            if (existing != null) {
+                return@post call.respond(HttpStatusCode.Conflict, "Email already exists")
+            }
+
+            val createdUser = userRepository.create(user)
+            call.respond(HttpStatusCode.Created, createdUser.toGetUserResponse())
         }
     }
 }
