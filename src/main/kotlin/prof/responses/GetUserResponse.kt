@@ -9,6 +9,8 @@ class GetUserResponse(
     val firstName: String,
     val lastName: String,
     val email: String,
+    /** 0 = active, 1 = disabled */
+    val disabled: Int = 0,
     val createdAt: LocalDateTime? = null,
     val modifiedAt: LocalDateTime? = null,
 )

@@ -10,6 +10,10 @@ interface UserRepositoryInterface {
     suspend fun findAll(): List<UserDTO>
     suspend fun create(entity: CreateUserRequest): UserDTO
     suspend fun update(entity: UpdateUserRequest)
-    suspend fun delete(id: Long): Boolean
+    /**
+     * Soft delete: set disabled flag.
+     * @param disabled 0 = active, 1 = disabled
+     */
+    suspend fun setDisabled(id: Long, disabled: Int): Boolean
     suspend fun findByEmail(email: String): UserDTO?
 }

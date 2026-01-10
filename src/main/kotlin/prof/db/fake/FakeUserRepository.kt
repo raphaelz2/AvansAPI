@@ -67,6 +67,7 @@ object FakeUserRepository : UserRepositoryInterface {
             lastName = entity.lastName,
             password = hashed,
             email = entity.email,
+            disabled = 0,
             createdAt = now,
             modifiedAt = now
         )
@@ -89,6 +90,9 @@ object FakeUserRepository : UserRepositoryInterface {
         }
     }
 
-    // Delete a user by their ID
-    override suspend fun delete(id: Long): Boolean = users.removeIf { it.id == id }
+    override suspend fun setDisabled(id: Long, disabled: Int): Boolean {
+        val user = users.find { it.id == id } ?: return false
+        user.disabled = disabled
+        return true
+    }
 }

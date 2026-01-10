@@ -45,7 +45,8 @@ object DatabaseFactory {
         Database.connect(dataSource)
 
         transaction {
-            SchemaUtils.create(Users, Cars, EntityAttributes, Reservations, CarImages, TelemetryLogs, Terms)
+            // Create tables and also add new columns when the schema evolves (e.g. Users.disabled)
+            SchemaUtils.createMissingTablesAndColumns(Users, Cars, EntityAttributes, Reservations, CarImages, TelemetryLogs, Terms)
 
             //seeders
             prof.db.sql.seeders.MainSeeder().run()

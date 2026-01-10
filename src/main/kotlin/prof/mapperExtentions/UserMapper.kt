@@ -9,6 +9,7 @@ fun UserDTO.toGetUserResponse(): GetUserResponse = GetUserResponse(
     firstName = firstName,
     lastName = lastName,
     email = email,
+    disabled = disabled,
     createdAt = createdAt,
     modifiedAt = modifiedAt
 )

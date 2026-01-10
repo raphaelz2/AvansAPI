@@ -8,6 +8,11 @@ object Users : Table("users") {
     val lastName = varchar("last_name", 100)
     val password = varchar("password", 255)
     val email = varchar("email", 200).uniqueIndex()
+    /**
+     * Soft delete flag.
+     * 0 = active, 1 = disabled
+     */
+    val disabled = integer("disabled").default(0)
     val createdAt = varchar("created_at", 40)
     val modifiedAt = varchar("modified_at", 40)
     override val primaryKey = PrimaryKey(id)

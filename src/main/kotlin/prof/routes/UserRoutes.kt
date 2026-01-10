@@ -10,6 +10,9 @@ import prof.Requests.UpdateUserRequest
 import prof.mapperExtentions.toGetUserResponse
 import prof.mapperExtentions.toGetUserResponseList
 
+/**
+ * Protected user routes (JWT required).
+ */
 fun Route.userRoutes(userRepository: UserRepositoryInterface) {
     route("/users") {
         // Get all users
@@ -29,13 +32,6 @@ fun Route.userRoutes(userRepository: UserRepositoryInterface) {
             call.respond(HttpStatusCode.OK, user.toGetUserResponse())
         }
 
-        // Create a new user
-        post {
-            val user = call.receive<CreateUserRequest>()
-            val createdUser = userRepository.create(user)
-            call.respond(HttpStatusCode.Created, createdUser.toGetUserResponse())
-        }
-
         // Update an existing user by ID
         put("/{id}") {
             val id = call.parameters["id"]?.toLongOrNull()
@@ -45,17 +41,43 @@ fun Route.userRoutes(userRepository: UserRepositoryInterface) {
             call.respond(HttpStatusCode.Accepted)
         }
 
-        // Delete a user by ID
-        delete("/{id}") {
+        // Soft delete: disable a user (0 = active, 1 = disabled)
+        put("/{id}/disable") {
             val id = call.parameters["id"]?.toLongOrNull()
-                ?: return@delete call.respond(HttpStatusCode.BadRequest)
+                ?: return@put call.respond(HttpStatusCode.BadRequest)
 
-            val deleted = userRepository.delete(id)
-            if (deleted) {
-                call.respond(HttpStatusCode.NoContent) // Successfully deleted
-            } else {
-                call.respond(HttpStatusCode.NotFound) // User not found
+            val ok = userRepository.setDisabled(id, 1)
+            if (ok) call.respond(HttpStatusCode.NoContent) else call.respond(HttpStatusCode.NotFound)
+        }
+
+        // Optional: re-enable a user
+        put("/{id}/enable") {
+            val id = call.parameters["id"]?.toLongOrNull()
+                ?: return@put call.respond(HttpStatusCode.BadRequest)
+
+            val ok = userRepository.setDisabled(id, 0)
+            if (ok) call.respond(HttpStatusCode.NoContent) else call.respond(HttpStatusCode.NotFound)
+        }
+    }
+}
+
+/**
+ * Public registration route (no JWT required).
+ * Exposes: POST /users
+ */
+fun Route.userRegistrationRoutes(userRepository: UserRepositoryInterface) {
+    route("/users") {
+        post {
+            val user = call.receive<CreateUserRequest>()
+
+            // Basic duplicate email protection
+            val existing = userRepository.findByEmail(user.email)
+            if (existing != null) {
+                return@post call.respond(HttpStatusCode.Conflict, "Email already exists")
             }
+
+            val createdUser = userRepository.create(user)
+            call.respond(HttpStatusCode.Created, createdUser.toGetUserResponse())
         }
     }
 }

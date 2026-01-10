@@ -67,9 +67,14 @@ fun Application.configureSecurity() {
 //                call.respond(HttpStatusCode.Unauthorized, "Invalid credentials")
 //                return@post
 //            }
-            val ok = user != null && prof.security.Passwords.verify(request.password,user.password)
-            if(!ok){
+            val ok = user != null && prof.security.Passwords.verify(request.password, user.password)
+            if (!ok) {
                 call.respond(HttpStatusCode.Unauthorized, "Invalid credentials")
+                return@post
+            }
+
+            if (user.disabled == 1) {
+                call.respond(HttpStatusCode.Forbidden, "Account is disabled")
                 return@post
             }
 

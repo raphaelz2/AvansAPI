@@ -21,6 +21,7 @@ class SqlUserRepository : UserRepositoryInterface {
         lastName = row[Users.lastName],
         password = row[Users.password],
         email = row[Users.email],
+        disabled = row[Users.disabled],
         createdAt = LocalDateTime.parse(row[Users.createdAt]),
         modifiedAt = LocalDateTime.parse(row[Users.modifiedAt])
     )
@@ -44,6 +45,7 @@ class SqlUserRepository : UserRepositoryInterface {
             st[lastName] = entity.lastName
             st[password] = hashed
             st[email] = entity.email
+            st[disabled] = 0
             st[createdAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
             st[modifiedAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
         } get Users.id
@@ -61,8 +63,11 @@ class SqlUserRepository : UserRepositoryInterface {
         }
     }
 
-    override suspend fun delete(id: Long): Boolean = transaction {
-        Users.deleteWhere { Users.id eq id } > 0
+    override suspend fun setDisabled(id: Long, disabled: Int): Boolean = transaction {
+        Users.update({ Users.id eq id }) { st ->
+            st[Users.disabled] = disabled
+            st[modifiedAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
+        } > 0
     }
 
     // Robust email lookup: trims and ignores case to avoid invisible character issues

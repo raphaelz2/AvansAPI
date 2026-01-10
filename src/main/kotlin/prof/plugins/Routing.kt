@@ -23,6 +23,7 @@ import prof.routes.carRoutes
 import prof.routes.reservationRoutes
 import prof.routes.telemetryRoutes
 import prof.routes.userRoutes
+import prof.routes.userRegistrationRoutes
 
 fun Application.configureRouting() {
     val useFake = environment.config.propertyOrNull("app.useFake")?.getString()?.toBoolean() ?: true
@@ -42,6 +43,9 @@ fun Application.configureRouting() {
         get("/") {
             call.respondText("Welcome to the car rental api! (mode=" + (if (useFake) "FAKE" else "SQL") + ")")
         }
+
+        // Public registration (no JWT required)
+        userRegistrationRoutes(userRepo)
 
         authenticate("auth-jwt") {
             userRoutes(userRepo)

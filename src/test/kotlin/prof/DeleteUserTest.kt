@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test
 import prof.Requests.CreateUserRequest
 import prof.db.fake.FakeUserRepository
 
-class DeleteUserTest {
+class DisableUserTest {
 
     @Test
-    fun `delete should remove existing user and return true`() = runBlocking {
+    fun `setDisabled should disable existing user and return true`() = runBlocking {
         // Arrange: maak een nieuwe gebruiker aan
         val user = FakeUserRepository.create(
             CreateUserRequest(
@@ -23,26 +23,27 @@ class DeleteUserTest {
 
         val userId = user.id!!
 
-        // Act: verwijder de gebruiker
-        val deleted = FakeUserRepository.delete(userId)
+        // Act: disable de gebruiker
+        val ok = FakeUserRepository.setDisabled(userId, 1)
 
         // Assert: verwijdering is gelukt
-        assertTrue(deleted, "Verwacht dat de gebruiker succesvol verwijderd is.")
+        assertTrue(ok, "Verwacht dat de gebruiker succesvol disabled is.")
 
         // Assert: gebruiker bestaat niet meer
         val retrieved = FakeUserRepository.findById(userId)
-        assertNull(retrieved, "Verwacht dat de gebruiker niet meer gevonden wordt na verwijderen.")
+        assertNotNull(retrieved, "Verwacht dat de gebruiker nog bestaat na soft delete.")
+        assertEquals(1, retrieved!!.disabled, "Verwacht dat de gebruiker disabled=1 is.")
     }
 
     @Test
-    fun `delete should return false if user does not exist`() = runBlocking {
+    fun `setDisabled should return false if user does not exist`() = runBlocking {
         // Arrange: gebruik een ID die niet bestaat
         val nonExistentId = -999L
 
         // Act
-        val deleted = FakeUserRepository.delete(nonExistentId)
+        val ok = FakeUserRepository.setDisabled(nonExistentId, 1)
 
         // Assert
-        assertFalse(deleted, "Verwacht dat verwijderen van een niet-bestaande gebruiker false retourneert.")
+        assertFalse(ok, "Verwacht dat disable van een niet-bestaande gebruiker false retourneert.")
     }
 }
