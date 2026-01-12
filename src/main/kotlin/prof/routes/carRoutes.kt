@@ -3,11 +3,13 @@ package prof.routes
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.auth.UserIdPrincipal
+import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.principal
 import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import prof.AuthenticatedUser
 import prof.Requests.CostOfOwnerShipRequest
 import prof.Requests.CarSearchFilterRequest
 import prof.Requests.CreateCarRequest
@@ -38,18 +40,18 @@ fun Route.carRoutes(carRepository: CarRepositoryInterface) {
             call.respond(HttpStatusCode.OK, car.toGetCarResponse())
         }
 
-        // Create a new car
-        post("/create") {
-            val principal = call.principal<UserIdPrincipal>()
-            val userId = principal?.name?.toLongOrNull()
-                ?: return@post call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
+        authenticate("auth-jwt") {
+            post("/create") {
+                val principal = call.principal<AuthenticatedUser>()
+                val userId = principal?.id
+                    ?: return@post call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
 
-            val carRequest = call.receive<CreateCarRequest>()
+                val carRequest = call.receive<CreateCarRequest>()
+                val carWithUser = carRequest.copy(userId = userId)
 
-            val carWithUser = carRequest.copy(userId = userId)
-
-            val createdCar = carRepository.create(carWithUser)
-            call.respond(HttpStatusCode.Created, createdCar.toGetCarResponse())
+                val createdCar = carRepository.create(carWithUser)
+                call.respond(HttpStatusCode.Created, createdCar.toGetCarResponse())
+            }
         }
 
 
