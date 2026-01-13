@@ -7,7 +7,7 @@ import kotlinx.datetime.LocalDateTime
 
 interface ReservationRepositoryInterface {
     suspend fun findReservationsForUser(userId: Long): List<ReservationDTO>
-    suspend fun findAll(): List<ReservationDTO>
+    suspend fun findAll(userId: Long): List<ReservationDTO>
     suspend fun canBookOnTime(entity: CreateReservationRequest): Boolean
     suspend fun findById(id: Long): ReservationDTO?
     suspend fun create(entity: CreateReservationRequest): ReservationDTO

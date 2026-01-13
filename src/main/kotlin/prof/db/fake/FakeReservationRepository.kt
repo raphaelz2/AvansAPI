@@ -51,7 +51,7 @@ object FakeReservationRepository : ReservationRepositoryInterface {
     override suspend fun findReservationsForUser(userId: Long): List<ReservationDTO> =
         reservations.filter { it.userId == userId }
 
-    override suspend fun findAll(): List<ReservationDTO> = reservations.toList()
+    override suspend fun findAll(userId: Long): List<ReservationDTO> = reservations.toList()
 
     override suspend fun canBookOnTime(entity: CreateReservationRequest): Boolean {
         return true

@@ -31,8 +31,8 @@ class ReservationSeeder(
                 users.take(2).forEachIndexed { userIndex, userId ->
                     val reservations = listOf(
                         CreateReservationRequest(
-                            startTime = LocalDateTime(2025, 10, 25, 9, 0),
-                            endTime = LocalDateTime(2025, 10, 25, 12, 0),
+                            startTime = LocalDateTime(2026, 1, 13, 9, 0),
+                            endTime = LocalDateTime(2026, 1, 13, 12, 0),
                             userId = userId,
                             carId = carId,
                             termId = terms.random(),
@@ -42,8 +42,8 @@ class ReservationSeeder(
                             costPerKm = "0.35"
                         ),
                         CreateReservationRequest(
-                            startTime = LocalDateTime(2025, 10, 28, 14, 0),
-                            endTime = LocalDateTime(2025, 10, 28, 18, 0),
+                            startTime = LocalDateTime(2026, 1, 14, 14, 0),
+                            endTime = LocalDateTime(2026, 1, 14, 18, 0),
                             userId = userId,
                             carId = carId,
                             termId = terms.random(),
@@ -53,8 +53,8 @@ class ReservationSeeder(
                             costPerKm = "0.35"
                         ),
                         CreateReservationRequest(
-                            startTime = LocalDateTime(2025, 11, 1, 8, 0),
-                            endTime = LocalDateTime(2025, 11, 1, 16, 0),
+                            startTime = LocalDateTime(2026, 1, 15, 8, 0),
+                            endTime = LocalDateTime(2026, 1, 15, 16, 0),
                             userId = userId,
                             carId = carId,
                             termId = terms.random(),

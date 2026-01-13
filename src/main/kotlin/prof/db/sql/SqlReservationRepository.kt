@@ -37,8 +37,8 @@ class SqlReservationRepository : ReservationRepositoryInterface {
         Reservations.selectAll().where { Reservations.id eq id }.singleOrNull()?.let { rowToReservation(it) }
     }
 
-    override suspend fun findAll(): List<ReservationDTO> = transaction {
-        Reservations.selectAll().map { rowToReservation(it) }
+    override suspend fun findAll(userId: Long): List<ReservationDTO> = transaction {
+        Reservations.selectAll().where{ Reservations.userId eq userId }.map { rowToReservation(it) }
     }
 
     override suspend fun canBookOnTime(entity: CreateReservationRequest): Boolean = transaction {
