@@ -3,9 +3,9 @@ val logback_version: String by project
 val ktor_version = "3.0.0"
 
 plugins {
-    kotlin("jvm") version "2.0.20"
+    kotlin("jvm") version "2.1.0"
     id("io.ktor.plugin") version "3.0.0"
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.20"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.0"
     id("org.flywaydb.flyway") version "10.17.0"
 }
 
@@ -35,8 +35,9 @@ dependencies {
     implementation("io.ktor:ktor-server-default-headers-jvm:$ktor_version")
     implementation("ch.qos.logback:logback-classic:1.5.6")
 
-    implementation("io.ktor:ktor-client-core:2.3.7")
-    implementation("io.ktor:ktor-client-cio:2.3.7")
+    // Ktor client - gebruik dezelfde versie als server!
+    implementation("io.ktor:ktor-client-core:$ktor_version")
+    implementation("io.ktor:ktor-client-cio:$ktor_version")
 
     // Exposed ORM + Hikari + SQLite JDBC
     implementation("org.jetbrains.exposed:exposed-core:0.56.0")
@@ -62,9 +63,9 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host-jvm:$ktor_version")
     testImplementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
-    testImplementation("io.ktor:ktor-server-auth:${ktor_version}")
+    testImplementation("io.ktor:ktor-server-auth:$ktor_version")
 
-    //implementation voor de DeleteUnitTest
+    // Test frameworks
     implementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")

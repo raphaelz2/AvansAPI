@@ -18,6 +18,8 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.max
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import prof.db.sql.migrations.Terms
 import prof.db.sql.migrations.Users
 
@@ -37,6 +39,13 @@ class SqlTermRepository : TermRepositoryInterface {
         Terms
             .selectAll().where { Terms.userId eq userId }
             .map { rowToTerm(it) }
+    }
+
+    override fun getActive(userId: Long): TermDTO? = transaction{
+        Terms
+            .selectAll().where(Terms.userId eq userId and (Terms.active eq true))
+            .singleOrNull()
+            ?.let { rowToTerm(it) }
     }
 
     private fun getNextVersionForUser(tx: Transaction, userId: Long): Int {

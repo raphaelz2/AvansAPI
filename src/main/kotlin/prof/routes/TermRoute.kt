@@ -14,6 +14,16 @@ import prof.mapperExtentions.toGetTermResponseList
 
 fun Route.TermRoute(TermRepository: TermRepositoryInterface) {
     route("/terms") {
+         get("/user/{userId}") {
+            val userId = call.parameters["userId"]?.toLongOrNull()
+                ?: return@get call.respond(HttpStatusCode.BadRequest)
+
+            val term = TermRepository.getActive(userId)
+                ?: return@get call.respond(HttpStatusCode.NotFound)
+
+            call.respond(HttpStatusCode.OK, term.toGetTermResponse())
+        }
+        
         get {
             val user = call.principal<AuthenticatedUser>()!!
             val terms = TermRepository.findAll(user.id)
@@ -27,6 +37,16 @@ fun Route.TermRoute(TermRepository: TermRepositoryInterface) {
             val user = call.principal<AuthenticatedUser>()!!
 
             val term = TermRepository.findById(id, user.id)
+                ?: return@get call.respond(HttpStatusCode.NotFound)
+
+            call.respond(HttpStatusCode.OK, term.toGetTermResponse())
+        }
+
+        get("/user/{userId}") {
+            val userId = call.parameters["userId"]?.toLongOrNull()
+                ?: return@get call.respond(HttpStatusCode.BadRequest)
+
+            val term = TermRepository.getActive(userId)
                 ?: return@get call.respond(HttpStatusCode.NotFound)
 
             call.respond(HttpStatusCode.OK, term.toGetTermResponse())

@@ -2,7 +2,7 @@ package prof.Requests
 
 import kotlinx.serialization.Serializable
 import prof.enums.PowerSourceTypeEnum
-
+ 
 @Serializable
 data class CarSearchFilterRequest (
     val latitude: Double? = null,
