@@ -42,16 +42,6 @@ fun Route.TermRoute(TermRepository: TermRepositoryInterface) {
             call.respond(HttpStatusCode.OK, term.toGetTermResponse())
         }
 
-        get("/user/{userId}") {
-            val userId = call.parameters["userId"]?.toLongOrNull()
-                ?: return@get call.respond(HttpStatusCode.BadRequest)
-
-            val term = TermRepository.getActive(userId)
-                ?: return@get call.respond(HttpStatusCode.NotFound)
-
-            call.respond(HttpStatusCode.OK, term.toGetTermResponse())
-        }
-
         post {
             val term = call.receive<CreateTermRequest>()
             val user = call.principal<AuthenticatedUser>()

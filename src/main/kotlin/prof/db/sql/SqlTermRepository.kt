@@ -129,7 +129,7 @@ class SqlTermRepository : TermRepositoryInterface {
     }
 
     override fun delete(id: Long, userId: Long): Boolean = transaction {
-        Users.deleteWhere {
+        Terms.deleteWhere {
             (Terms.id eq id) and (Terms.userId eq userId)
         } > 0
     }
