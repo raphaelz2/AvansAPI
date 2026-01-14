@@ -520,4 +520,10 @@ class SqlCarRepository(
 
         true
     }
+
+    override suspend fun findByUserId(userId: Long): List<CarDTO> = transaction {
+        Cars.selectAll()
+            .where { Cars.userId eq userId }
+            .map { rowToCar(it) }
+    }
 }

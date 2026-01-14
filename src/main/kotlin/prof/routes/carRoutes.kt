@@ -92,6 +92,17 @@ fun Route.carRoutes(carRepository: CarRepositoryInterface) {
             call.respond(HttpStatusCode.OK, cars.toGetCarsResponse())
         }
 
+        authenticate("auth-jwt") {
+            get("/my-cars") {
+                val principal = call.principal<AuthenticatedUser>()
+                val userId = principal?.id
+                    ?: return@get call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
+
+                val cars = carRepository.findByUserId(userId)
+                call.respond(HttpStatusCode.OK, cars.toGetCarsResponse())
+            }
+        }
+
         post("/search") {
             val filter = call.receive<CarSearchFilterRequest>()
             val cars = carRepository.search(filter)

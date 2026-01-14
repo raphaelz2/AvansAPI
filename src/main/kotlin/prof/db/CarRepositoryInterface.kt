@@ -19,4 +19,5 @@ interface CarRepositoryInterface {
     suspend fun delete(id: Long): Boolean
     suspend fun search(filter: CarSearchFilterRequest): List<CarDTO>
     suspend fun addImages(carId: Long, fileNames: List<String>): Boolean
+    suspend fun findByUserId(userId: Long): List<CarDTO>
 }

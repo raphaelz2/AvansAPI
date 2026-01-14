@@ -472,4 +472,11 @@ object FakeCarRepository : CarRepositoryInterface {
         cars.remove(car)
         return true
     }
+
+    override suspend fun findByUserId(userId: Long): List<CarDTO> =
+        cars.filter { it.userId == userId }.map { car ->
+            car.apply {
+                attributes = entityAttributeRepo.findByEntityBlocking(EntityEnum.CAR.name, car.id).toMutableList()
+            }
+        }
 }
