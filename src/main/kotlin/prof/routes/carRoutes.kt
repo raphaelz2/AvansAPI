@@ -1,8 +1,8 @@
 package prof.routes
 
+import CarRequestWithUser
 import io.ktor.http.*
 import io.ktor.http.content.*
-import io.ktor.server.auth.UserIdPrincipal
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.principal
 import io.ktor.server.http.content.*
@@ -47,12 +47,47 @@ fun Route.carRoutes(carRepository: CarRepositoryInterface) {
                     ?: return@post call.respond(HttpStatusCode.Unauthorized, "User not authenticated")
 
                 val carRequest = call.receive<CreateCarRequest>()
-                val carWithUser = carRequest.copy(userId = userId)
+
+                val carWithUser = CarRequestWithUser(
+                    userId = userId,
+                    make = carRequest.make,
+                    model = carRequest.model,
+                    price = carRequest.price,
+                    pickupLocation = carRequest.pickupLocation,
+                    category = carRequest.category,
+                    powerSourceType = carRequest.powerSourceType,
+                    color = carRequest.color,
+                    engineType = carRequest.engineType,
+                    enginePower = carRequest.enginePower,
+                    fuelType = carRequest.fuelType,
+                    transmission = carRequest.transmission,
+                    interiorType = carRequest.interiorType,
+                    interiorColor = carRequest.interiorColor,
+                    exteriorType = carRequest.exteriorType,
+                    exteriorFinish = carRequest.exteriorFinish,
+                    wheelSize = carRequest.wheelSize,
+                    wheelType = carRequest.wheelType,
+                    seats = carRequest.seats,
+                    doors = carRequest.doors,
+                    modelYear = carRequest.modelYear,
+                    licensePlate = carRequest.licensePlate,
+                    mileage = carRequest.mileage,
+                    vinNumber = carRequest.vinNumber,
+                    tradeName = carRequest.tradeName,
+                    bpm = carRequest.bpm,
+                    curbWeight = carRequest.curbWeight,
+                    maxWeight = carRequest.maxWeight,
+                    firstRegistrationDate = carRequest.firstRegistrationDate,
+                    bookingCost = carRequest.bookingCost,
+                    costPerKilometer = carRequest.costPerKilometer,
+                    deposit = carRequest.deposit,
+                )
 
                 val createdCar = carRepository.create(carWithUser)
                 call.respond(HttpStatusCode.Created, createdCar.toGetCarResponse())
             }
         }
+
 
 
         get("/search") {

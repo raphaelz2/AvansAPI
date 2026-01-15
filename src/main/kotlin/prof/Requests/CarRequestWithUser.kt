@@ -1,11 +1,7 @@
-package prof.Requests
-
-import kotlinx.datetime.LocalDateTime
-import kotlinx.serialization.Serializable
 import prof.enums.PowerSourceTypeEnum
 
-@Serializable
-data class CreateCarRequest(
+data class CarRequestWithUser(
+    val userId: Long,
     val make: String,
     val model: String?,
     val price: Float?,

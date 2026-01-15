@@ -1,5 +1,6 @@
 package prof.db.sql
 
+import CarRequestWithUser
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -277,14 +278,48 @@ class SqlCarRepository(
             .map { rowToCar(it) }
     }
 
-    override suspend fun create(entity: CreateCarRequest): CarDTO = transaction {
+    override suspend fun create(entity: CarRequestWithUser): CarDTO = transaction {
         val newId: Long = Cars.insert { st ->
+            st[userId] = entity.userId
             st[createdAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
             st[modifiedAt] = Clock.System.now().toLocalDateTime(TimeZone.UTC).toString()
-            st[userId] = entity.userId
         } get Cars.id
 
-        entityAttributesFromRequest(newId, entity).forEach { attr ->
+        val createCarRequest = CreateCarRequest(
+            make = entity.make,
+            model = entity.model,
+            price = entity.price,
+            pickupLocation = entity.pickupLocation,
+            category = entity.category,
+            powerSourceType = entity.powerSourceType,
+            color = entity.color,
+            engineType = entity.engineType,
+            enginePower = entity.enginePower,
+            fuelType = entity.fuelType,
+            transmission = entity.transmission,
+            interiorType = entity.interiorType,
+            interiorColor = entity.interiorColor,
+            exteriorType = entity.exteriorType,
+            exteriorFinish = entity.exteriorFinish,
+            wheelSize = entity.wheelSize,
+            wheelType = entity.wheelType,
+            seats = entity.seats,
+            doors = entity.doors,
+            modelYear = entity.modelYear,
+            licensePlate = entity.licensePlate,
+            mileage = entity.mileage,
+            vinNumber = entity.vinNumber,
+            tradeName = entity.tradeName,
+            bpm = entity.bpm,
+            curbWeight = entity.curbWeight,
+            maxWeight = entity.maxWeight,
+            firstRegistrationDate = entity.firstRegistrationDate,
+            bookingCost = entity.bookingCost,
+            costPerKilometer = entity.costPerKilometer,
+            deposit = entity.deposit,
+        )
+
+        entityAttributesFromRequest(newId, createCarRequest).forEach { attr ->
             entityAttributeRepo.createBlocking(attr)
         }
 

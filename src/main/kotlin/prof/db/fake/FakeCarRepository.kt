@@ -1,5 +1,6 @@
 package prof.db.fake
 
+import CarRequestWithUser
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -7,11 +8,9 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.sql.transactions.transaction
 import prof.Requests.CarSearchFilterRequest
 import prof.Requests.CostOfOwnerShipRequest
-import prof.Requests.CreateCarRequest
 import prof.Requests.CreateReservationRequest
 import prof.Requests.UpdateCarRequest
 import prof.db.CarRepositoryInterface
-import prof.db.fake.FakeEntityAttributeRepository
 import prof.entities.CarDTO
 import prof.entities.EntityAttributeDTO
 import prof.enums.CarAttributeEnum
@@ -32,8 +31,8 @@ object FakeCarRepository : CarRepositoryInterface {
     init {
         runBlocking {
             create(
-                CreateCarRequest(
-                    userId = 1,
+                CarRequestWithUser(
+                    userId = 1L,
                     make = "Toyota",
                     model = "Corolla",
                     price = 20000.0f,
@@ -69,8 +68,8 @@ object FakeCarRepository : CarRepositoryInterface {
             )
 
             create(
-                CreateCarRequest(
-                    userId = 1,
+                CarRequestWithUser(
+                    userId = 1L,
                     make = "Tesla",
                     model = "Model 3",
                     price = 45000.0f,
@@ -124,7 +123,7 @@ object FakeCarRepository : CarRepositoryInterface {
         return true
     }
 
-    override suspend fun create(entity: CreateCarRequest): CarDTO {
+    override suspend fun create(entity: CarRequestWithUser): CarDTO {
         currentId++
         val now = Clock.System.now().toLocalDateTime(TimeZone.of("Europe/Amsterdam")).toString()
 
@@ -132,59 +131,13 @@ object FakeCarRepository : CarRepositoryInterface {
             id = currentId,
             createdAt = now,
             modifiedAt = now,
-            userId = 1
+            userId = entity.userId
         )
         cars.add(car)
 
-        val attrs = mutableListOf<EntityAttributeDTO>()
+        addCarAttributes(currentId, entity, now)
 
-        fun addAttr(enum: CarAttributeEnum, value: Any?) {
-            if (value != null) attrs += EntityAttributeDTO(
-                id = 0,
-                entity = EntityEnum.CAR,
-                entityId = car.id,
-                attribute = enum.name,
-                value = value.toString(),
-                createdAt = now,
-                modifiedAt = now
-            )
-        }
-
-        addAttr(CarAttributeEnum.MAKE, entity.make)
-        addAttr(CarAttributeEnum.MODEL, entity.model)
-        addAttr(CarAttributeEnum.PRICE, entity.price)
-        addAttr(CarAttributeEnum.PICKUP_LOCATION, entity.pickupLocation)
-        addAttr(CarAttributeEnum.CATEGORY, entity.category)
-        addAttr(CarAttributeEnum.POWER_SOURCE_TYPE, entity.powerSourceType)
-        addAttr(CarAttributeEnum.COLOR, entity.color)
-        addAttr(CarAttributeEnum.ENGINE_TYPE, entity.engineType)
-        addAttr(CarAttributeEnum.ENGINE_POWER, entity.enginePower)
-        addAttr(CarAttributeEnum.FUEL_TYPE, entity.fuelType)
-        addAttr(CarAttributeEnum.TRANSMISSION, entity.transmission)
-        addAttr(CarAttributeEnum.INTERIOR_TYPE, entity.interiorType)
-        addAttr(CarAttributeEnum.INTERIOR_COLOR, entity.interiorColor)
-        addAttr(CarAttributeEnum.EXTERIOR_TYPE, entity.exteriorType)
-        addAttr(CarAttributeEnum.EXTERIOR_FINISH, entity.exteriorFinish)
-        addAttr(CarAttributeEnum.WHEEL_SIZE, entity.wheelSize)
-        addAttr(CarAttributeEnum.WHEEL_TYPE, entity.wheelType)
-        addAttr(CarAttributeEnum.SEATS, entity.seats)
-        addAttr(CarAttributeEnum.DOORS, entity.doors)
-        addAttr(CarAttributeEnum.MODEL_YEAR, entity.modelYear)
-        addAttr(CarAttributeEnum.LICENSE_PLATE, entity.licensePlate)
-        addAttr(CarAttributeEnum.MILEAGE, entity.mileage)
-        addAttr(CarAttributeEnum.VIN_NUMBER, entity.vinNumber)
-        addAttr(CarAttributeEnum.TRADE_NAME, entity.tradeName)
-        addAttr(CarAttributeEnum.BPM, entity.bpm)
-        addAttr(CarAttributeEnum.CURB_WEIGHT, entity.curbWeight)
-        addAttr(CarAttributeEnum.MAX_WEIGHT, entity.maxWeight)
-        addAttr(CarAttributeEnum.FIRST_REGISTRATION_DATE, entity.firstRegistrationDate)
-        addAttr(CarAttributeEnum.BOOKING_COST, entity.bookingCost)
-        addAttr(CarAttributeEnum.DEPOSIT, entity.deposit)
-        addAttr(CarAttributeEnum.COST_PER_KILOMETER, entity.costPerKilometer)
-
-        attrs.forEach { entityAttributeRepo.createBlocking(it) }
-
-        car.attributes = attrs.toMutableList()
+        car.attributes = entityAttributeRepo.findByEntityBlocking(EntityEnum.CAR.name, car.id).toMutableList()
         return car
     }
 
@@ -399,7 +352,14 @@ object FakeCarRepository : CarRepositoryInterface {
         carId: Long,
         fileNames: List<String>
     ): Boolean {
-        return true
+        try {
+            fileNames.forEach { fileName ->
+                addImageFileName(carId, fileName)
+            }
+            return true
+        } catch (e: Exception) {
+            return false
+        }
     }
 
     override suspend fun calculateCostOfOwnerShip(entity: CostOfOwnerShipRequest): GetCostOfOwnerShipResponse {
@@ -479,4 +439,50 @@ object FakeCarRepository : CarRepositoryInterface {
                 attributes = entityAttributeRepo.findByEntityBlocking(EntityEnum.CAR.name, car.id).toMutableList()
             }
         }
+
+    private fun addCarAttributes(carId: Long, entity: CarRequestWithUser, now: String) {
+        fun addAttr(enum: CarAttributeEnum, value: Any?) {
+            if (value != null) entityAttributeRepo.createBlocking(EntityAttributeDTO(
+                id = 0,
+                entity = EntityEnum.CAR,
+                entityId = carId,
+                attribute = enum.name,
+                value = value.toString(),
+                createdAt = now,
+                modifiedAt = now
+            ))
+        }
+
+        addAttr(CarAttributeEnum.MAKE, entity.make)
+        addAttr(CarAttributeEnum.MODEL, entity.model)
+        addAttr(CarAttributeEnum.PRICE, entity.price)
+        addAttr(CarAttributeEnum.PICKUP_LOCATION, entity.pickupLocation)
+        addAttr(CarAttributeEnum.CATEGORY, entity.category)
+        addAttr(CarAttributeEnum.POWER_SOURCE_TYPE, entity.powerSourceType)
+        addAttr(CarAttributeEnum.COLOR, entity.color)
+        addAttr(CarAttributeEnum.ENGINE_TYPE, entity.engineType)
+        addAttr(CarAttributeEnum.ENGINE_POWER, entity.enginePower)
+        addAttr(CarAttributeEnum.FUEL_TYPE, entity.fuelType)
+        addAttr(CarAttributeEnum.TRANSMISSION, entity.transmission)
+        addAttr(CarAttributeEnum.INTERIOR_TYPE, entity.interiorType)
+        addAttr(CarAttributeEnum.INTERIOR_COLOR, entity.interiorColor)
+        addAttr(CarAttributeEnum.EXTERIOR_TYPE, entity.exteriorType)
+        addAttr(CarAttributeEnum.EXTERIOR_FINISH, entity.exteriorFinish)
+        addAttr(CarAttributeEnum.WHEEL_SIZE, entity.wheelSize)
+        addAttr(CarAttributeEnum.WHEEL_TYPE, entity.wheelType)
+        addAttr(CarAttributeEnum.SEATS, entity.seats)
+        addAttr(CarAttributeEnum.DOORS, entity.doors)
+        addAttr(CarAttributeEnum.MODEL_YEAR, entity.modelYear)
+        addAttr(CarAttributeEnum.LICENSE_PLATE, entity.licensePlate)
+        addAttr(CarAttributeEnum.MILEAGE, entity.mileage)
+        addAttr(CarAttributeEnum.VIN_NUMBER, entity.vinNumber)
+        addAttr(CarAttributeEnum.TRADE_NAME, entity.tradeName)
+        addAttr(CarAttributeEnum.BPM, entity.bpm)
+        addAttr(CarAttributeEnum.CURB_WEIGHT, entity.curbWeight)
+        addAttr(CarAttributeEnum.MAX_WEIGHT, entity.maxWeight)
+        addAttr(CarAttributeEnum.FIRST_REGISTRATION_DATE, entity.firstRegistrationDate)
+        addAttr(CarAttributeEnum.BOOKING_COST, entity.bookingCost)
+        addAttr(CarAttributeEnum.DEPOSIT, entity.deposit)
+        addAttr(CarAttributeEnum.COST_PER_KILOMETER, entity.costPerKilometer)
+    }
 }

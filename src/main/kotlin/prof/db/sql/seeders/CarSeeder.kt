@@ -1,23 +1,23 @@
 package prof.db.sql.seeders
 
+import CarRequestWithUser
 import org.jetbrains.exposed.sql.selectAll
-import prof.Requests.CreateCarRequest
 import prof.db.sql.SqlCarRepository
 import prof.db.sql.SqlEntityAttributeRepository
 import prof.db.sql.migrations.Cars
 import prof.enums.PowerSourceTypeEnum
 
 class CarSeeder(
-     val carRepository: SqlCarRepository = SqlCarRepository(
+    val carRepository: SqlCarRepository = SqlCarRepository(
         entityAttributeRepo = SqlEntityAttributeRepository()
     )
-){
+) {
     suspend fun run() {
         if (Cars.selectAll().empty()) {
             println("🚗🚗🚗 CarSeeder start...")
             val cars = listOf(
-                CreateCarRequest(
-                    userId = 1,
+                CarRequestWithUser(
+                    userId = 1L,
                     make = "Tesla",
                     model = "Model 3",
                     price = 48990f,
@@ -50,8 +50,8 @@ class CarSeeder(
                     costPerKilometer = 0.25,
                     deposit = "500"
                 ),
-                CreateCarRequest(
-                    userId = 1,
+                CarRequestWithUser(
+                    userId = 1L,
                     make = "Volkswagen",
                     model = "Golf",
                     price = 28990f,
@@ -84,8 +84,8 @@ class CarSeeder(
                     costPerKilometer = 0.20,
                     deposit = "400"
                 ),
-                CreateCarRequest(
-                    userId = 1,
+                CarRequestWithUser(
+                    userId = 1L,
                     make = "BMW",
                     model = "i4",
                     price = 65900f,
@@ -118,8 +118,8 @@ class CarSeeder(
                     costPerKilometer = 0.30,
                     deposit = "600"
                 ),
-                CreateCarRequest(
-                    userId = 1,
+                CarRequestWithUser(
+                    userId = 1L,
                     make = "Toyota",
                     model = "Corolla Hybrid",
                     price = 29900f,
@@ -152,8 +152,8 @@ class CarSeeder(
                     costPerKilometer = 0.22,
                     deposit = "400"
                 ),
-                CreateCarRequest(
-                    userId = 1,
+                CarRequestWithUser(
+                    userId = 1L,
                     make = "Mercedes-Benz",
                     model = "EQS 450+",
                     price = 119900f,
@@ -186,8 +186,8 @@ class CarSeeder(
                     costPerKilometer = 0.40,
                     deposit = "1000"
                 ),
-                CreateCarRequest(
-                    userId = 1,
+                CarRequestWithUser(
+                    userId = 1L,
                     make = "Ford",
                     model = "Focus",
                     price = 24900f,
@@ -220,8 +220,8 @@ class CarSeeder(
                     costPerKilometer = 0.18,
                     deposit = "300"
                 ),
-                CreateCarRequest(
-                    userId = 1,
+                CarRequestWithUser(
+                    userId = 1L,
                     make = "Volvo",
                     model = "XC60 Recharge",
                     price = 68900f,
@@ -254,8 +254,8 @@ class CarSeeder(
                     costPerKilometer = 0.28,
                     deposit = "700"
                 ),
-                CreateCarRequest(
-                    userId = 1,
+                CarRequestWithUser(
+                    userId = 1L,
                     make = "Audi",
                     model = "A3 Sportback",
                     price = 34900f,
@@ -288,8 +288,8 @@ class CarSeeder(
                     costPerKilometer = 0.23,
                     deposit = "450"
                 ),
-                CreateCarRequest(
-                    userId = 1,
+                CarRequestWithUser(
+                    userId = 1L,
                     make = "Peugeot",
                     model = "208",
                     price = 21900f,
@@ -322,8 +322,8 @@ class CarSeeder(
                     costPerKilometer = 0.17,
                     deposit = "300"
                 ),
-                CreateCarRequest(
-                    userId = 1,
+                CarRequestWithUser(
+                    userId = 1L,
                     make = "Hyundai",
                     model = "Kona Electric",
                     price = 37900f,
@@ -361,7 +361,7 @@ class CarSeeder(
             cars.forEach {
                 try {
                     val created = carRepository.create(it)
-                    println("✅ Car toegevoegd: ${created.id}")
+                    println("✅ Car toegevoegd: ${created.id} - ${it.make} ${it.model}")
                 } catch (e: Exception) {
                     println("⚠️ Can car ${it.model} not create: ${e.message}")
                 }
